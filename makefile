@@ -1,28 +1,31 @@
 # Makefile para proyecto C++ con varias carpetas
 
-CXX = clang++
-CXXFLAGS = -std=c++14 -g -Wall -fcolor-diagnostics -fansi-escape-codes
+CXX = g++
+CXXFLAGS = -std=c++17 -g -Wall
 
-# Archivos fuente: todos los .cpp en las carpetas indicadas + main.cpp en la raíz
+# Buscar todos los archivos .cpp en subdirectorios
 SRC = main.cpp \
-      DatabaseManager.cpp \
-      disco/*.cpp \
-      modelo/*.cpp \
-      utils/*.cpp\
-      #estructura/*.cpp
+      $(wildcard disco/*.cpp) \
+      $(wildcard file/*.cpp) \
+      $(wildcard indices/*.cpp) \
+      $(wildcard loader/*.cpp) \
+      $(wildcard manager/*.cpp) \
+      $(wildcard registro/*.cpp) \
+      $(wildcard sql/*.cpp)
+      # $(wildcard estructura/*.cpp)
 
 # Nombre del ejecutable
 TARGET = main
 
-# Regla para compilar todo
+# Regla principal
 all: $(TARGET)
 
 # Regla para crear el ejecutable
 $(TARGET): $(SRC)
-	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 # Limpiar archivos generados
 clean:
-	rm -f $(TARGET) *.o
+	rm -f $(TARGET)
 
 .PHONY: all clean

@@ -1,9 +1,3 @@
-#include <vector>
-#include <string>
-#include "Sector.h"
-#include "../modelo/DireccionDisco.h"
-#include "../modelo/Registro.h"
-using namespace std;
 
 class Disco {
 private:

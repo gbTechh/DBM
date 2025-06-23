@@ -1,39 +1,37 @@
-#include "IndexID.h"
+#include "IndexAttr.h"
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <utility>
 
 // AQUÍ sí puedes usar using namespace std si quieres
 using namespace std;
 
-// Constructor de AVLNode
-AVLNode::AVLNode(int id, std::string atributos)
-    : value(std::make_pair(id, atributos)), left(nullptr), right(nullptr),
-      height(1) {}
+// Constructor de AVLNodeAttr
+AVLNodeAttr::AVLNodeAttr(std::string attr)
+    : value(attr), left(nullptr), right(nullptr), height(1) {}
 
-// Constructor de IndexID
-IndexID::IndexID() : root(nullptr) {}
+// Constructor de IndexAttr
+IndexAttr::IndexAttr() : root(nullptr) {}
 
 // Destructor
-IndexID::~IndexID() { destroyTree(root); }
+IndexAttr::~IndexAttr() { destroyTree(root); }
 
 // Implementación de métodos privados
-int IndexID::getHeight(AVLNode *node) { return node ? node->height : 0; }
+int IndexAttr::getHeight(AVLNodeAttr *node) { return node ? node->height : 0; }
 
-void IndexID::updateHeight(AVLNode *node) {
+void IndexAttr::updateHeight(AVLNodeAttr *node) {
   if (node) {
     node->height = 1 + max(getHeight(node->left), getHeight(node->right));
   }
 }
 
-int IndexID::getBalance(AVLNode *node) {
+int IndexAttr::getBalance(AVLNodeAttr *node) {
   return node ? getHeight(node->left) - getHeight(node->right) : 0;
 }
 
-AVLNode *IndexID::rotateRight(AVLNode *y) {
-  AVLNode *x = y->left;
-  AVLNode *T2 = x->right;
+AVLNodeAttr *IndexAttr::rotateRight(AVLNodeAttr *y) {
+  AVLNodeAttr *x = y->left;
+  AVLNodeAttr *T2 = x->right;
 
   x->right = y;
   y->left = T2;
@@ -44,9 +42,9 @@ AVLNode *IndexID::rotateRight(AVLNode *y) {
   return x;
 }
 
-AVLNode *IndexID::rotateLeft(AVLNode *x) {
-  AVLNode *y = x->right;
-  AVLNode *T2 = y->left;
+AVLNodeAttr *IndexAttr::rotateLeft(AVLNodeAttr *x) {
+  AVLNodeAttr *y = x->right;
+  AVLNodeAttr *T2 = y->left;
 
   y->left = x;
   x->right = T2;
@@ -57,17 +55,18 @@ AVLNode *IndexID::rotateLeft(AVLNode *x) {
   return y;
 }
 
-AVLNode *IndexID::insertHelper(AVLNode *node, int id, std::string attributes) {
+AVLNodeAttr *IndexAttr::insertHelper(AVLNodeAttr *node, std::string column,
+                                     std::string atributo) {
   // Inserción normal de BST
+  std::string attr = column + ":" + atributo;
   if (!node)
-    return new AVLNode(id, attributes);
+    return new AVLNodeAttr(attr);
 
-  if (id < node->value.first) {
-    node->left = insertHelper(node->left, id, attributes);
-  } else if (id > node->value.first) {
-    node->right = insertHelper(node->right, id, attributes);
+  if (attr < node->value) {
+    node->left = insertHelper(node->left, column, attr);
+  } else if (attr > node->value) {
+    node->right = insertHelper(node->right, column, attr);
   } else {
-    node->value.second = attributes;
     return node; // Valor duplicado
   }
 
@@ -78,20 +77,20 @@ AVLNode *IndexID::insertHelper(AVLNode *node, int id, std::string attributes) {
   int balance = getBalance(node);
 
   // Rotaciones
-  if (balance > 1 && id < node->left->value.first) {
+  if (balance > 1 && attr < node->left->value) {
     return rotateRight(node);
   }
 
-  if (balance < -1 && id > node->right->value.first) {
+  if (balance < -1 && attr > node->right->value) {
     return rotateLeft(node);
   }
 
-  if (balance > 1 && id > node->left->value.first) {
+  if (balance > 1 && attr > node->left->value) {
     node->left = rotateLeft(node->left);
     return rotateRight(node);
   }
 
-  if (balance < -1 && id < node->right->value.first) {
+  if (balance < -1 && attr < node->right->value) {
     node->right = rotateRight(node->right);
     return rotateLeft(node);
   }
@@ -99,24 +98,24 @@ AVLNode *IndexID::insertHelper(AVLNode *node, int id, std::string attributes) {
   return node;
 }
 
-AVLNode *IndexID::findMin(AVLNode *node) {
+AVLNodeAttr *IndexAttr::findMin(AVLNodeAttr *node) {
   while (node->left) {
     node = node->left;
   }
   return node;
 }
 
-AVLNode *IndexID::deleteHelper(AVLNode *node, int value) {
+AVLNodeAttr *IndexAttr::deleteHelper(AVLNodeAttr *node, std::string value) {
   if (!node)
     return node;
 
-  if (value < node->value.first) {
+  if (value < node->value) {
     node->left = deleteHelper(node->left, value);
-  } else if (value > node->value.first) {
+  } else if (value > node->value) {
     node->right = deleteHelper(node->right, value);
   } else {
     if (!node->left || !node->right) {
-      AVLNode *temp = node->left ? node->left : node->right;
+      AVLNodeAttr *temp = node->left ? node->left : node->right;
       if (!temp) {
         temp = node;
         node = nullptr;
@@ -125,9 +124,9 @@ AVLNode *IndexID::deleteHelper(AVLNode *node, int value) {
       }
       delete temp;
     } else {
-      AVLNode *temp = findMin(node->right);
-      node->value.first = temp->value.first;
-      node->right = deleteHelper(node->right, temp->value.first);
+      AVLNodeAttr *temp = findMin(node->right);
+      node->value = temp->value;
+      node->right = deleteHelper(node->right, temp->value);
     }
   }
 
@@ -158,15 +157,15 @@ AVLNode *IndexID::deleteHelper(AVLNode *node, int value) {
   return node;
 }
 
-void IndexID::inorderHelper(AVLNode *node) {
+void IndexAttr::inorderHelper(AVLNodeAttr *node) {
   if (node) {
     inorderHelper(node->left);
-    cout << node->value.first << " ";
+    cout << node->value << " ";
     inorderHelper(node->right);
   }
 }
 
-void IndexID::destroyTree(AVLNode *node) {
+void IndexAttr::destroyTree(AVLNodeAttr *node) {
   if (node) {
     destroyTree(node->left);
     destroyTree(node->right);
@@ -175,30 +174,32 @@ void IndexID::destroyTree(AVLNode *node) {
 }
 
 // Implementación de métodos públicos
-void IndexID::insert(int value, std::string attributes) {
-  root = insertHelper(root, value, attributes);
+void IndexAttr::insert(std::string column, std::string attributes) {
+  root = insertHelper(root, column, attributes);
 }
 
-void IndexID::remove(int value) { root = deleteHelper(root, value); }
+void IndexAttr::remove(std::string value) { root = deleteHelper(root, value); }
 
-void IndexID::inorder() {
+void IndexAttr::inorder() {
   inorderHelper(root);
   cout << endl;
 }
 
-bool IndexID::find(int value, std::pair<int, std::string> &registro) {
-  AVLNode *current = root;
+bool IndexAttr::find(std::string column, std::string &attr) {
+  std::string value = column + ":" + attr;
+  AVLNodeAttr *current = root;
   while (current) {
-    if (value == current->value.first) {
-      registro = current->value;
+    if (value == current->value) {
+      value = current->value;
       return true;
     }
-    current = (value < current->value.first) ? current->left : current->right;
+    current = (value < current->value) ? current->left : current->right;
   }
   return false;
 }
 
-void IndexID::imprimirArbol(AVLNode *nodo, int espacio = 0, int nivel = 5) {
+void IndexAttr::imprimirArbol(AVLNodeAttr *nodo, int espacio = 0,
+                              int nivel = 5) {
   if (nodo == nullptr)
     return;
 
@@ -212,12 +213,12 @@ void IndexID::imprimirArbol(AVLNode *nodo, int espacio = 0, int nivel = 5) {
   std::cout << std::endl;
   for (int i = nivel; i < espacio; i++)
     std::cout << " ";
-  std::cout << nodo->value.first << " " << nodo->value.second;
+  std::cout << nodo->value;
 
   // Luego el subárbol izquierdo
   imprimirArbol(nodo->left, espacio);
 }
-void IndexID::imprimir() {
+void IndexAttr::imprimir() {
   std::cout << "\nÁrbol AVL (vista rotada):\n";
   imprimirArbol(root);
   std::cout << "\n";

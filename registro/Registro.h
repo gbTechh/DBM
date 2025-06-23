@@ -5,15 +5,19 @@
 #include <vector>
 
 struct Head {
-  int name;
+  std::string name;
   std::string type;
   int size;
-}
+};
 
-class Registros {
+class Registro {
 public:
-  void AddColumn(int name, std::string type, int size);
-  Head GetColumnIndex(int index);
+  void AddColumn(std::string name, std::string type, int size);
+  Head GetHeaderByIndex(int index);
+  void AddHeader(std::string name, std::string type, int size);
+
+  void printHeader();
+
 private:
   std::vector<Head> header;
 };

@@ -1,45 +1,80 @@
 #include "DataLoader.h"
-#include "File.h"
+#include "../file/File.h"
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <iostream>
+#include <string>
+#include <vector>
 
-void DataLoader::loadFromFile(const std::string& filename, DatabaseManager& dbManager) {
-    File file(filename); // Abre el archivo
-    //std::vector<Registro> registros;
+DataLoader::DataLoader() {};
 
-    // Leer cabecera (tipos o nombres de campos)
-    std::string header;
-    if (!file.readLine(header)) {
-        throw std::runtime_error("El archivo está vacío o no se pudo leer la cabecera.");
+void DataLoader::loadFromFile(const std::string &filename,
+                              DatabaseManager &dbManager) {
+  File file(filename); // Abre el archivo
+  // std::vector<Registro> registros;
+
+  // Leer cabecera (tipos o nombres de campos)
+  std::string header;
+  if (!file.ReadLine(header)) {
+    throw std::runtime_error(
+        "El archivo está vacío o no se pudo leer la cabecera.");
+  } else {
+    std::vector<std::string> campos = split(header, ',');
+    for (const auto &campo : campos) {
+      std::vector<std::string> partes = split(campo, ':');
+      int size = std::stoi(partes[2]);
+      dbManager.AddHeaderInRegistro(partes[0], partes[1], size);
     }
+  }
 
-    // Leer registros línea por línea
-    std::string line;
-    while (file.readLine(line)) {
-        Registro registro = parseLineToRecord(line);
-        dbManager.insertRegistro(registro); // Insertar en disco e índice
-        //registros.push_back(registro);
-    }
+  // Leer registros línea por línea
+  std::string line;
+  while (file.ReadLine(line)) {
+    std::vector<std::string> lineSplited = split(line, ',');
+    dbManager.insertRegistro(lineSplited);
+    // Registro registro = parseLineToRecord(line);
+    // dbManager.insertRegistro(registro); // Insertar en disco e índice
+    //  registros.push_back(registro);
+  }
 
-    //return registros;
+  // return registros;
 }
 
-Registro DataLoader::parseLineToRecord(const std::string& line) {
-    std::istringstream iss(line);
-    Registro registro;
-    std::string value;
-    int fieldIndex = 0;
+void DataLoader::getColumnHead(std::string line) {}
 
-    while (iss >> value) {
-        // Aquí puedes mejorar usando nombres de campo leídos de la cabecera si lo deseas
-        std::string fieldName = "campo" + std::to_string(fieldIndex++);
-        registro.atributos[fieldName] = value;
-    }
+std::vector<std::string> DataLoader::split(const std::string &str,
+                                           char delimiter) {
+  std::vector<std::string> tokens;
+  std::istringstream iss(str);
+  std::string token;
 
-    // Asignamos un ID básico basado en hash simple del contenido
-    // OJO: esto es solo un ejemplo. Puedes tener un generador de IDs único si lo prefieres.
-    registro.id = std::hash<std::string>{}(line);
+  while (std::getline(iss, token, delimiter)) {
+    if (!token.empty())
+      tokens.push_back(token);
+  }
 
-    return registro;
+  return tokens;
 }
+
+// Registro DataLoader::parseLineToRecord(const std::string &line) {
+//   std::istringstream iss(line);
+//   Registro registro;
+//   std::string value;
+//   int fieldIndex = 0;
+
+//   while (iss >> value) {
+//     // Aquí puedes mejorar usando nombres de campo leídos de la cabecera si
+//     lo
+//     // deseas
+//     std::string fieldName = "campo" + std::to_string(fieldIndex++);
+//     registro.atributos[fieldName] = value;
+//   }
+
+//   // Asignamos un ID básico basado en hash simple del contenido
+//   // OJO: esto es solo un ejemplo. Puedes tener un generador de IDs único si
+//   lo
+//   // prefieres.
+//   registro.id = std::hash<std::string>{}(line);
+
+//   return registro;
+// }

@@ -1,17 +1,20 @@
 #ifndef DATALOADER_H
 #define DATALOADER_H
 
+#include "../manager/DatabaseManager.h"
+#include "../registro/Registro.h"
 #include <string>
 #include <vector>
-#include "../modelo/Registro.h"
-#include "../DatabaseManager.h"
 
 class DataLoader {
 public:
-    void loadFromFile(const std::string& filename, DatabaseManager& dbManager);
+  DataLoader();
+  void loadFromFile(const std::string &filename, DatabaseManager &dbManager);
+  void getColumnHead(std::string line);
+  std::vector<std::string> split(const std::string &str, char delimiter);
 
 private:
-    static Registro parseLineToRecord(const std::string& line);
+  // static Registro parseLineToRecord(const std::string& line);
 };
 
 #endif // DATALOADER_H
