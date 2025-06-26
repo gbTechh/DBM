@@ -26,10 +26,17 @@ int main() {
     std::pair<int, std::string> registro;
     dbManager.getRegistroByID(2, registro);
 
+    std::string v = "Juan";
+    bool exist = dbManager.getRegistroByAttr("name", v);
+    std::cout<<v<<" existe: "<<exist<<"\n";
+    dbManager.getIndexAttr().imprimir();
+
+
+
     cout << "ID: " << registro.first << " ATTRS: " << registro.second << "\n";
 
-    std::string val = "sss";
-    int b = dbManager.getRegistroByAttr("name", val);
+    std::string val = "Juan";
+    int b = dbManager.getRegistroByAttr("nombre", val);
     cout << "JUAN: " << b << "\n";
     cout << "value: " << val << "\n";
     // 3. Mostrar resumen de registros almacenados

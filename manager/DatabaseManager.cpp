@@ -53,6 +53,7 @@ void DatabaseManager::AddHeaderInRegistro(std::string name, std::string type,
 }
 
 IndexID DatabaseManager::getIndexID() { return indiceId; }
+IndexAttr DatabaseManager::getIndexAttr() { return indiceAttr; }
 
 // Registro DatabaseManager::getRecordById(int id) const {
 //   DireccionDisco dir = indiceId.buscar(id);

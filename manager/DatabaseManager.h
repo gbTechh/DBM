@@ -33,6 +33,7 @@ public:
   void AddHeaderInRegistro(std::string name, std::string type, int size);
 
   IndexID getIndexID();
+  IndexAttr getIndexAttr();
 
   bool getRegistroByID(int id, std::pair<int, std::string> &registro);
   bool getRegistroByAttr(std::string column, std::string &value);

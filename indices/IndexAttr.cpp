@@ -63,9 +63,9 @@ AVLNodeAttr *IndexAttr::insertHelper(AVLNodeAttr *node, std::string column,
     return new AVLNodeAttr(attr);
 
   if (attr < node->value) {
-    node->left = insertHelper(node->left, column, attr);
+    node->left = insertHelper(node->left, column, atributo);
   } else if (attr > node->value) {
-    node->right = insertHelper(node->right, column, attr);
+    node->right = insertHelper(node->right, column, atributo);
   } else {
     return node; // Valor duplicado
   }
@@ -188,7 +188,10 @@ void IndexAttr::inorder() {
 bool IndexAttr::find(std::string column, std::string &attr) {
   std::string value = column + ":" + attr;
   AVLNodeAttr *current = root;
+  std::cout<<"Curren value 1: "<<current->value<<"\n";
+  std::cout<<"value 1: "<<value<<"\n";
   while (current) {
+    std::cout<<"Curren value: "<<current->value<<"\n";
     if (value == current->value) {
       value = current->value;
       return true;
