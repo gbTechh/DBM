@@ -3,8 +3,11 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -g -Wall
 
-# Buscar todos los archivos .cpp en subdirectorios
-SRC = main.cpp \
+# Directorios de origen
+SRC_DIRS = front disco file indices loader manager registro sql
+
+# Buscar todos los archivos .cpp en los directorios especificados
+SRC = front/servidor.cpp \
       $(wildcard disco/*.cpp) \
       $(wildcard file/*.cpp) \
       $(wildcard indices/*.cpp) \
@@ -12,10 +15,9 @@ SRC = main.cpp \
       $(wildcard manager/*.cpp) \
       $(wildcard registro/*.cpp) \
       $(wildcard sql/*.cpp)
-      # $(wildcard estructura/*.cpp)
 
 # Nombre del ejecutable
-TARGET = main
+TARGET = servidor
 
 # Regla principal
 all: $(TARGET)

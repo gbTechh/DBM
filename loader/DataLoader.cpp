@@ -1,6 +1,5 @@
 #include "DataLoader.h"
 #include "../file/File.h"
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -24,17 +23,21 @@ void DataLoader::loadFromFile(const std::string &filename,
       std::vector<std::string> partes = split(campo, ':');
       int size = std::stoi(partes[2]);
       dbManager.AddHeaderInRegistro(partes[0], partes[1], size);
+      dbManager.setHeaderLine(header);
     }
   }
 
+  dbManager.setHeadersRegistros();
   // Leer registros línea por línea
   std::string line;
   while (file.ReadLine(line)) {
     std::vector<std::string> lineSplited = split(line, ',');
     dbManager.insertRegistro(lineSplited);
-    // Registro registro = parseLineToRecord(line);
-    // dbManager.insertRegistro(registro); // Insertar en disco e índice
-    //  registros.push_back(registro);
+
+    // buscador(campos_nombre, tipoDato, registros);
+    //  Registro registro = parseLineToRecord(line);
+    //  dbManager.insertRegistro(registro); // Insertar en disco e índice
+    //   registros.push_back(registro);
   }
 
   // return registros;

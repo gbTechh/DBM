@@ -2,6 +2,7 @@
 #define DATABASE_MANAGER_H
 
 #include "../disco/Disco.h"
+#include "../indices/Buscador.h"
 #include "../indices/IndexAttr.h"
 #include "../indices/IndexID.h"
 #include "../registro/Registro.h"
@@ -15,6 +16,7 @@ public:
   DatabaseManager(int platos = 2, int pistas = 100, int sectores = 8,
                   int tamanioSector = 100);
 
+  DatabaseManager(Buscador b);
   // Insertar un registro en el disco
   void insertRegistro(std::vector<std::string> line);
   void insertHeader(const Registro &registro);
@@ -38,11 +40,18 @@ public:
   bool getRegistroByID(int id, std::pair<int, std::string> &registro);
   bool getRegistroByAttr(std::string column, std::string &value);
 
+  void setBuscador(Buscador b);
+  Buscador getBuscador();
+
+  void setHeadersRegistros();
+  void setHeaderLine(std::string h);
+
 private:
   Registro registro;
   Disco disco;
   IndexID indiceId;     // Índice B+ para búsquedas por ID
   IndexAttr indiceAttr; // Índice B+ para búsquedas por ID
+  Buscador buscador;
 };
 
 #endif // DATABASE_MANAGER_H

@@ -12,6 +12,26 @@ void Registro::AddHeader(std::string _name, std::string _type, int _size) {
 
 Head Registro::GetHeaderByIndex(int index) { return header[index]; }
 
+void Registro::addRegistro(std::vector<std::string> r) {
+  registros.push_back(r);
+}
+
+void Registro::setCamposAndDatos() {
+  for (size_t i = 0; i < header.size(); i++) {
+    Head h = header[i];
+    camposNombre.push_back(h.name);
+    tipoDato.push_back(h.type);
+  }
+}
+
+std::vector<std::vector<std::string>> Registro::getAllRegistros() {
+  return registros;
+}
+
+std::string Registro::getHeaderLine() { return headerLine; }
+
+void Registro::setHeaderLine(std::string h) { headerLine = h; }
+
 void Registro::printHeader() {
   for (size_t i = 0; i < header.size(); i++) {
     std::cout << "name: " << header[i].name << "\n";

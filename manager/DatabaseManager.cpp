@@ -17,6 +17,8 @@ void DatabaseManager::insertRegistro(std::vector<std::string> reg) {
       attrs = attrs + reg[i];
       Head h = registro.GetHeaderByIndex(i);
       indiceAttr.insert(h.name, reg[i]);
+      // registro.addRegistro(reg);
+      buscador.insertReg(reg);
     }
   }
 
@@ -51,6 +53,14 @@ void DatabaseManager::AddHeaderInRegistro(std::string name, std::string type,
                                           int size) {
   registro.AddHeader(name, type, size);
 }
+
+void DatabaseManager::setHeadersRegistros() { registro.setCamposAndDatos(); }
+void DatabaseManager::setHeaderLine(std::string h) {
+  registro.setHeaderLine(h);
+}
+
+void DatabaseManager::setBuscador(Buscador b) { buscador = b; }
+Buscador DatabaseManager::getBuscador() { return buscador; }
 
 IndexID DatabaseManager::getIndexID() { return indiceId; }
 IndexAttr DatabaseManager::getIndexAttr() { return indiceAttr; }

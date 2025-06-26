@@ -28,10 +28,8 @@ int main() {
 
     std::string v = "Juan";
     bool exist = dbManager.getRegistroByAttr("name", v);
-    std::cout<<v<<" existe: "<<exist<<"\n";
+    std::cout << v << " existe: " << exist << "\n";
     dbManager.getIndexAttr().imprimir();
-
-
 
     cout << "ID: " << registro.first << " ATTRS: " << registro.second << "\n";
 
