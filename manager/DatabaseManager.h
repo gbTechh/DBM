@@ -45,6 +45,9 @@ public:
 
   void setHeadersRegistros();
   void setHeaderLine(std::string h);
+  void setHeaderLineWithoutID(std::string h);
+
+  Buscador cargarBuscador();
 
 private:
   Registro registro;

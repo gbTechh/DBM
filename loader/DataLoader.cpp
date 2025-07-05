@@ -24,6 +24,7 @@ void DataLoader::loadFromFile(const std::string &filename,
       int size = std::stoi(partes[2]);
       dbManager.AddHeaderInRegistro(partes[0], partes[1], size);
       dbManager.setHeaderLine(header);
+      dbManager.setHeaderLineWithoutID(header);
     }
   }
 

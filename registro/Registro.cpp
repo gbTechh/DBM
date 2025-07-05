@@ -29,8 +29,38 @@ std::vector<std::vector<std::string>> Registro::getAllRegistros() {
 }
 
 std::string Registro::getHeaderLine() { return headerLine; }
+std::string Registro::getHeaderLineWithoutID() { return headerLineWithouID; }
 
 void Registro::setHeaderLine(std::string h) { headerLine = h; }
+
+void Registro::setHeaderLineWithoutID(std::string h) {
+    // Buscar la posición del primer campo "id:INT:4"
+    std::string toRemove = "id:INT:4,";
+    size_t pos = h.find(toRemove);
+    
+    // Si se encuentra el campo, eliminarlo
+    if (pos != std::string::npos) {
+        h.erase(pos, toRemove.length());
+    } else {
+        // Si no se encuentra "id:INT:4,", verificar si está al final sin coma
+        toRemove = "id:INT:4";
+        pos = h.find(toRemove);
+        if (pos != std::string::npos) {
+            h.erase(pos, toRemove.length());
+        }
+    }
+    
+    // Asignar la cadena modificada a headerLine
+    headerLineWithouID = h;
+}
+
+std::vector<std::string> Registro::getCamposNombre() const {
+    return camposNombre;
+}
+
+std::vector<std::string> Registro::getTipoDato() const {
+    return tipoDato;
+}
 
 void Registro::printHeader() {
   for (size_t i = 0; i < header.size(); i++) {

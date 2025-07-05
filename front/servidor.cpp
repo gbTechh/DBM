@@ -84,7 +84,7 @@ int main() {
           Registro r = dbmanager->getRegitro();
           resultado["status"] = "success";
           resultado["message"] = "Datos cargados correctamente";
-          resultado["header"] = r.getHeaderLine();
+          resultado["header"] = r.getHeaderLineWithoutID();
           // Opcional: agregar número de registros
           // resultado["num_registros"] = dbmanager->getRecordCount();
 
@@ -131,45 +131,100 @@ int main() {
   //           });
 
   // Ruta POST para buscar por atributo
-  svr.Post("/buscar", [](const httplib::Request &req, httplib::Response &res) {
+ svr.Post("/buscar", [](const httplib::Request &req, httplib::Response &res) {
     res.set_header("Access-Control-Allow-Origin", "*");
     res.set_header("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.set_header("Access-Control-Allow-Headers", "Content-Type");
 
     if (!dbmanager) {
-      res.status = 500;
-      res.set_content("{\"status\": \"error\", \"message\": \"Base de "
-                      "datos o loader no configurados\"}",
-                      "application/json");
-      return;
+        res.status = 500;
+        res.set_content(R"({"status": "error", "message": "Base de datos o loader no configurados"})",
+                        "application/json");
+        return;
     }
 
     try {
-      json payload = json::parse(req.body);
-      vector<string> campos_bus = payload["campos_bus"].get<vector<string>>();
-      vector<string> valores_bus = payload["valores_bus"].get<vector<string>>();
-      string operador = payload["operador"].get<string>();
-      vector<string> columnas = payload["columnas"].get<vector<string>>();
-      string atributo_orden = payload["ordenar"]["atributo"].get<string>();
-      string direccion_orden = payload["ordenar"]["direccion"].get<string>();
+        // Parsear el cuerpo de la solicitud
+        nlohmann::json payload = nlohmann::json::parse(req.body);
 
-      Buscador b = dbmanager->getBuscador();
-      vector<vector<string>> resultados = b.busquedaCompleta(
-          campos_bus, valores_bus, columnas, AND, atributo_orden, ASC);
+        // Verificar que el payload es un objeto
+        if (!payload.is_object()) {
+            throw std::invalid_argument("El payload debe ser un objeto JSON");
+        }
 
-      json resultado;
-      resultado["status"] = "success";
-      resultado["data"] = resultados;
+        // Extraer los campos del payload
+        std::vector<std::string> campos_bus = payload.at("campos_bus").get<std::vector<std::string>>();
+        std::vector<std::string> valores_bus = payload.at("valores_bus").get<std::vector<std::string>>();
+        std::string operador = payload.at("operador").get<std::string>();
+        std::vector<std::string> columnas = payload.at("columnas").get<std::vector<std::string>>();
+        std::string atributo_orden = payload.at("ordenar").at("atributo").get<std::string>();
+        std::string direccion_orden = payload.at("ordenar").at("direccion").get<std::string>();
 
-      res.set_content(resultado.dump(), "application/json");
-    } catch (const exception &e) {
-      cerr << "Error al procesar búsqueda: " << e.what() << endl;
-      res.status = 400;
-      res.set_content("{\"status\": \"error\", \"message\": \"Error al "
-                      "procesar búsqueda\"}",
-                      "application/json");
+        // Validar el operador
+        Operador op = (operador == "AND") ? AND : OR; // Asume AND por defecto si no es OR
+        // Validar la dirección de ordenamiento
+        Orden dir_orden = (direccion_orden == "ASC") ? ASC : DES; // Asume ASC por defecto si no es DES
+
+        // Realizar la búsqueda
+        Buscador b = dbmanager->cargarBuscador();
+        b.print();
+        
+        std::vector<std::vector<std::string>> resultados = b.busquedaCompleta(
+            campos_bus, valores_bus, columnas, OR, atributo_orden, dir_orden);
+
+        // Imprimir resultados para depuración
+        for (size_t i = 0; i < resultados.size(); ++i) {
+            for (size_t j = 0; j < resultados[i].size(); ++j) { // Corregido: usar resultados[i].size()
+                std::cout << resultados[i][j] << ", ";
+            }
+            std::cout << "\n";
+        }
+
+        // Crear el objeto JSON de respuesta
+        nlohmann::json resultado;
+        resultado["status"] = "success";
+        resultado["data"] = resultados; // Asignar resultados como un campo del objeto
+
+        // Enviar la respuesta
+        res.set_content(resultado.dump(), "application/json");
+    } catch (const nlohmann::json::exception &e) {
+        std::cerr << "Error al procesar JSON: " << e.what() << std::endl;
+        res.status = 400;
+        res.set_content(R"({"status": "error", "message": "Error al procesar JSON"})",
+                        "application/json");
+    } catch (const std::exception &e) {
+        std::cerr << "Error al procesar búsqueda: " << e.what() << std::endl;
+        res.status = 400;
+        res.set_content(R"({"status": "error", "message": "Error al procesar búsqueda"})",
+                        "application/json");
     }
-  });
+});
+
+    // svr.Post("/buscar", [](const httplib::Request& req, httplib::Response& res) {
+    //     res.set_header("Access-Control-Allow-Origin", "*");
+    //     res.set_header("Access-Control-Allow-Methods", "POST, OPTIONS");
+    //     res.set_header("Access-Control-Allow-Headers", "Content-Type");
+
+        
+        
+    //     if (!dbmanager) {
+    //         res.status = 500;
+    //         res.set_content("Base de datos no configurada", "text/plain");
+    //         return;
+    //     }
+
+    //     try {
+    //         json payload = json::parse(req.body);
+    //         //json resultados = procesarPeticionCompleta(payload, dbmanager);
+    //         json resultados = procesarPeticionCompleta(payload, dbmanager);
+    //         cout<< resultados<<"\n";
+    //         res.set_content(resultados.dump(), "application/json");
+    //     } catch (const exception& e) {
+    //         cerr << "Error al procesar búsqueda: " << e.what() << endl;
+    //         res.status = 400;
+    //         res.set_content("Error al procesar búsqueda", "text/plain");
+    //     }
+    // });
 
   // Rutas OPTIONS para CORS
   svr.Options("/configurar",

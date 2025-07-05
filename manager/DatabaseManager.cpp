@@ -1,6 +1,7 @@
 #include "DatabaseManager.h"
 #include <string>
 #include <vector>
+#include <iostream>
 
 DatabaseManager::DatabaseManager(int platos, int pistas, int sectores,
                                  int tamanioSector)
@@ -58,6 +59,9 @@ void DatabaseManager::setHeadersRegistros() { registro.setCamposAndDatos(); }
 void DatabaseManager::setHeaderLine(std::string h) {
   registro.setHeaderLine(h);
 }
+void DatabaseManager::setHeaderLineWithoutID(std::string h) {
+  registro.setHeaderLineWithoutID(h);
+}
 
 void DatabaseManager::setBuscador(Buscador b) { buscador = b; }
 Buscador DatabaseManager::getBuscador() { return buscador; }
@@ -65,6 +69,16 @@ Buscador DatabaseManager::getBuscador() { return buscador; }
 IndexID DatabaseManager::getIndexID() { return indiceId; }
 IndexAttr DatabaseManager::getIndexAttr() { return indiceAttr; }
 
+
+Buscador DatabaseManager::cargarBuscador() {
+  auto campos = registro.getCamposNombre();
+  auto tipos = registro.getTipoDato();
+  auto registros = registro.getAllRegistros();
+
+  std::cout<<"CAMPOS: ";
+  buscador = Buscador(campos, tipos, registros);
+  return buscador;
+}
 // Registro DatabaseManager::getRecordById(int id) const {
 //   DireccionDisco dir = indiceId.buscar(id);
 //   char *buffer = new char[disco.getTamanioSector()];

@@ -24,10 +24,16 @@ public:
   std::vector<std::vector<std::string>> getAllRegistros();
 
   std::string getHeaderLine();
+  std::string getHeaderLineWithoutID();
   void setHeaderLine(std::string h);
+  void setHeaderLineWithoutID(std::string h);
 
+  std::vector<std::string> getCamposNombre() const; // Nuevo método
+  std::vector<std::string> getTipoDato() const;    // Nuevo método
+  
 private:
   std::string headerLine;
+  std::string headerLineWithouID;
   std::vector<Head> header;
   std::vector<std::string> camposNombre;
   std::vector<std::string> tipoDato;

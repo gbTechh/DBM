@@ -131,7 +131,7 @@ Buscador::busquedaCompleta(vector<string> &camposBuscados,
                            string &orden, Orden dirOrden) {
   vector<vector<string>> resu;
   if (camposBuscados.size() != valoresBuscados.size())
-    return {{"ERROR"}};
+    return {{"ERRORRR"}};
   vector<unsigned int> idFinal;
 
   for (size_t i = 0; i < camposBuscados.size(); ++i) {
@@ -149,13 +149,13 @@ Buscador::busquedaCompleta(vector<string> &camposBuscados,
             ids.push_back(id);
         }
       } catch (...) {
-        return {{"ERROR"}};
+        return {{"ERROR2"}};
       }
     } else {
       auto itTipo = find(arbol_busqueda.campos.begin(),
                          arbol_busqueda.campos.end(), campo);
       if (itTipo == arbol_busqueda.campos.end())
-        return {{"ERROR"}};
+        return {{"ERROR3"}};
       size_t idxTipo =
           static_cast<size_t>(itTipo - arbol_busqueda.campos.begin());
       string tipo = arbol_busqueda.tipos[idxTipo];
