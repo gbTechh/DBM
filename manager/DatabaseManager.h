@@ -2,8 +2,6 @@
 #define DATABASE_MANAGER_H
 
 #include "../disco/Disco.h"
-#include "../indices/AVL_Busqueda.h"
-#include "../indices/Buscador.h"
 #include "../indices/IndexAttr.h"
 #include "../indices/IndexID.h"
 #include "../registro/Registro.h"
@@ -22,8 +20,7 @@ public:
 
   Registro getRegitro();
   bool getRegistroByID(int id,
-                       std::pair<int, std::vector<std::string>> &registro,
-                       DireccionDisco &dir);
+                       std::pair<int, std::vector<std::string>> &registro);
   bool getRegistroByAttr(std::string column, std::string &attr);
 
   void AddHeaderInRegistro(std::string name, std::string type, int size);
@@ -31,20 +28,16 @@ public:
   void setHeaderLine(std::string h);
   void setHeaderLineWithoutID(std::string h);
 
-  void setBuscador(Buscador b);
-  Buscador getBuscador();
   IndexID &getIndexID();
   IndexAttr &getIndexAttr();
   Disco &getDisco();
-  Buscador cargarBuscador();
 
 private:
   Registro registro;
   Disco disco;
-  IndexID indiceId;        // Índice B+ para búsquedas por ID
-  IndexAttr indiceAttr;    // Índice B+ para búsquedas por ID
-  AVL_Busqueda avlIndices; // Índice B+ para búsquedas por ID
-  Buscador buscador;
+  IndexID indiceId;     // Índice B+ para búsquedas por ID
+  IndexAttr indiceAttr; // Índice B+ para búsquedas por ID
+
   size_t offsetActual = 0;
 };
 

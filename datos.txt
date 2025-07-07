@@ -1,7 +1,7 @@
-id:int:4,nombre:varchar:50,edad:int:4,telefono:int:4
+id:int:4,nombre:varchar:10,edad:int:4,telefono:int:4
 1,Ana,25,1234567890
 2,Juan,30,1176543210
-3,Lucía,22,5551112222
+3,Lucia,22,5551112222
 4,Carlos,40,3334445555
 5,María,35,6667778888
 6,Pedro,28,9990001111

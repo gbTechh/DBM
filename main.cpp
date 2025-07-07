@@ -3,7 +3,6 @@
 #include "sql/Parser.h"
 #include "sql/Sql.h"
 #include "sql/Tokenizer.h"
-#include "utils/Parser.h"
 #include <cstddef>
 #include <iostream>
 
@@ -13,7 +12,7 @@ int main() {
   try {
 
     DatabaseManager dbManager(
-        2, 2, 2, 10, 16); // 2 platos, 2 pistas, 100 sectores, 8 tamaño sector
+        2, 2, 2, 5, 16); // 2 platos, 2 pistas, 100 sectores, 8 tamaño sector
     // 1. Inicializar el disco y el gestor de base de datos
     cout << "Inicializando disco..." << endl;
 
@@ -28,7 +27,7 @@ int main() {
     }
     std::cout << "\n";
 
-    SQL sql("SELECT nombre,edad,telefono FROM data WHERE nombre = Raquel",
+    SQL sql("SELECT nombre,edad,telefono FROM data WHERE nombre = Lucia",
             dbManager);
     std::vector<std::tuple<int, int, int>> bites;
     std::vector<std::pair<int, std::vector<std::string>>> registros =
@@ -49,6 +48,7 @@ int main() {
       int inicio = std::get<1>(bites[i]);
       int final = std::get<2>(bites[i]);
       dbManager.getDisco().mostrarUbicacion(inicio);
+      std::cout << "-----------------\n";
     }
     //  dbManager.getIndexAttr().imprimir();
 

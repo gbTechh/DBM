@@ -25,7 +25,7 @@ Campo_Codificado::Campo_Codificado(unsigned int campo_, std::string tipo_,
   if (tipo_ == "int") {
     tipo = TIPO_ENTERO;
     valor = std::stoull(v);
-  } else if (tipo_ == "float" || tipo_ == "double") {
+  } else if (tipo_ == "float" || tipo_ == "decimal") {
     tipo = TIPO_FLOTANTE;
     valor = std::stof(v);
   } else {

@@ -3,7 +3,6 @@
 #include "../sql/Sql.h"
 #include "httplib.h"
 #include "json.hpp"
-#include "procesador_filtro.hpp"
 #include <iostream>
 #include <vector>
 

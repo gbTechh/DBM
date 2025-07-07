@@ -1,12 +1,12 @@
 #ifndef DISCO_H
 #define DISCO_H
 
-#include "DireccionDisco.h"
+#include <iostream>
 #include <vector>
 
 struct UbicacionFisica {
   int plato;
-  int superficie;
+  int superficie; // 0: superior, 1: inferior
   int pista;
   int sector;
 };
@@ -14,31 +14,31 @@ struct UbicacionFisica {
 class Disco {
 private:
   int platos;
-  int superficiesPorPlato; // ahora es variable, antes era fijo en 2
+  int superficiesPorPlato;
   int pistasPorSuperficie;
   int sectoresPorPista;
   int sizeSector;
-  int sizeRegistro;
-
   int posicionActual = 0;
 
-  UbicacionFisica calcularUbicacion(int bytePos);
-
 public:
-  Disco(int platos, int superficiesPorPlato, int pistasPorSuperficie,
-        int sectoresPorPista, int sizeSector);
+  Disco(int _platos, int _superficiesPorPlato, int _pistasPorSuperficie,
+        int _sectoresPorPista, int _sizeSector);
 
-  int getPlatos() const { return platos; }
-  int getSuperficiesPorPlato() const { return superficiesPorPlato; }
-  int getPistasPorSuperficie() const { return pistasPorSuperficie; }
-  int getSectoresPorPista() const { return sectoresPorPista; }
-  int getSizeDisk() const;
-  int calcularDireccionFisica(const std::vector<int> &campos, int &final);
-
-  void reiniciar();
-  int getPosicionActual() const;
+  // Métodos principales
+  UbicacionFisica calcularUbicacion(int bytePos) const;
+  void mostrarUbicacion(int bytePos) const;
   void agregarRegistro(const std::vector<int> &campos, int &inicio, int &fin);
-  void mostrarUbicacion(int bytePos);
+
+  // Métodos para ubicaciones cruzadas
+  std::vector<UbicacionFisica> calcularUbicacionesRegistro(int inicio,
+                                                           int size) const;
+  void mostrarUbicacionesRegistro(int inicio, int size) const;
+
+  // Getters y utilidades
+  int getPosicionActual() const;
+  void reiniciar();
+  int getSizeDisk() const;
+  int getSectoresTotales() const;
 };
 
 #endif
