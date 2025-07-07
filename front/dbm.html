@@ -43,10 +43,10 @@
 
     <div class="content">
         <h1>Gestor de Base de Datos</h1>
-        <div class="search-area" id="search-area"></div>
+        <!-- <div class="search-area" id="search-area"></div>
         <h2>Consulta Avanzada</h2>
         <div class="consulta-group">
-            <!-- Sección: Operador lógico global -->
+          
             <div class="consultita-group">
                 <label for="operador-logico">Combinar filtros con:</label>
                 <select id="operador-logico">
@@ -55,7 +55,7 @@
                     <option value="NOT">NOT (excluir resultados que cumplan)</option>
                 </select>
             </div>
-            <!-- Sección: Ordenar por atributo -->
+            
             <div class="consultita-group">
                 <label for="ordenar-por">Ordenar por:</label>
                 <select id="ordenar-por">
@@ -66,14 +66,17 @@
                     <option value="desc">Descendente</option>
                 </select>
             </div>
-            <!-- Sección: Selección de columnas -->
+           
             <div class="consultita-group">
                 <label>Columnas a mostrar:</label>
                 <div id="columnas-checkboxes" class="columnas-checkboxes"></div>
             </div>
+        </div> -->
+        <div class="wrap-textarea">
+            <textarea class="textarea" id="query"></textarea>
         </div>
         <div class="button-buscar">
-            <button onclick="buscarRegistros()" style="border-radius: 10px;">Buscar</button>
+            <button onclick="buscarConsulta()" style="border-radius: 10px;">Buscar</button>
         </div>
         <div class="resultados-section">
             <h3>RESULTADOS</h3>

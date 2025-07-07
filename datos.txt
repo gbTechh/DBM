@@ -1,6 +1,6 @@
-id:INT:4,nombre:VARCHAR:50,edad:INT:4,telefono:INT:4
+id:int:4,nombre:varchar:50,edad:int:4,telefono:int:4
 1,Ana,25,1234567890
-2,Juan,30,9876543210
+2,Juan,30,1176543210
 3,Lucía,22,5551112222
 4,Carlos,40,3334445555
 5,María,35,6667778888
@@ -57,7 +57,7 @@ id:INT:4,nombre:VARCHAR:50,edad:INT:4,telefono:INT:4
 56,Félix,50,1112223333
 57,Consuelo,27,6665554444
 58,Rodrigo,44,3332221111
-59,Gloria,29,9998887777
+59,Raquel,29,9998887777
 60,Héctor,35,2221110000
 61,Verónica,48,7776665555
 62,Óscar,33,4443332222
@@ -85,7 +85,7 @@ id:INT:4,nombre:VARCHAR:50,edad:INT:4,telefono:INT:4
 84,Valentín,40,3334445555
 85,Asunción,32,8889990000
 86,Hilario,51,1112223333
-87,Ángeles,27,6665554444
+87,Angeles,27,6665554444
 88,Leandro,44,3332221111
 89,Adela,30,9998887777
 90,Heriberto,37,2221110000

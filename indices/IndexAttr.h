@@ -1,45 +1,64 @@
+// IndexAttr.h
 #ifndef INDEXATTR_H
 #define INDEXATTR_H
 
+#include "../utils/Enum.h"
+#include "CampoCodificado.h"
 #include <string>
-#include <utility>
+#include <vector>
 
 class AVLNodeAttr {
 public:
-  std::string value;
-  AVLNodeAttr *left;
-  AVLNodeAttr *right;
+  Campo_Codificado key;
+  std::vector<unsigned int> ids;
+  AVLNodeAttr *left, *right;
   int height;
 
-  AVLNodeAttr(std::string atributos);
+  AVLNodeAttr(const Campo_Codificado &k, unsigned int id);
 };
 
 class IndexAttr {
 private:
   AVLNodeAttr *root;
+  std::vector<std::string> campos;
+  std::vector<std::string> tipos;
 
-  // Métodos privados - solo declaraciones
   int getHeight(AVLNodeAttr *node);
   void updateHeight(AVLNodeAttr *node);
   int getBalance(AVLNodeAttr *node);
   AVLNodeAttr *rotateRight(AVLNodeAttr *y);
   AVLNodeAttr *rotateLeft(AVLNodeAttr *x);
-  AVLNodeAttr *insertHelper(AVLNodeAttr *node, std::string column,
-                            std::string attr);
+  AVLNodeAttr *insertHelper(AVLNodeAttr *node, const Campo_Codificado &key,
+                            unsigned int id);
+  AVLNodeAttr *deleteHelper(AVLNodeAttr *node, const Campo_Codificado &key);
   AVLNodeAttr *findMin(AVLNodeAttr *node);
-  AVLNodeAttr *deleteHelper(AVLNodeAttr *node, std::string attr);
-  void inorderHelper(AVLNodeAttr *node);
   void destroyTree(AVLNodeAttr *node);
+  void inorderHelper(AVLNodeAttr *node);
+  std::vector<unsigned int> searchHelper(AVLNodeAttr *node,
+                                         const Campo_Codificado &key);
+  void buscarRangoHelper(AVLNodeAttr *node, unsigned int columnaIndex,
+                         const std::string &operador, const std::string &valor,
+                         std::vector<unsigned int> &resultados);
 
 public:
   IndexAttr();
   ~IndexAttr();
 
-  void insert(std::string column, std::string attr);
-  void remove(std::string attr);
+  void insert(const Campo_Codificado &key, unsigned int id);
+  void remove(const Campo_Codificado &key);
+  std::vector<unsigned int> find(const Campo_Codificado &key);
   void inorder();
-  bool find(std::string column, std::string &attr);
-  void imprimirArbol(AVLNodeAttr *nodo, int espacio, int nivel);
+
+  void setCampos(const std::vector<std::string> &_campos);
+  void setTipos(const std::vector<std::string> &_tipos);
+
+  std::vector<unsigned int> buscar(const std::string &campo,
+                                   const std::string &valor);
+
+  std::vector<unsigned int> buscarRango(const std::string &columna,
+                                        const std::string &operador,
+                                        const std::string &valor);
+  void imprimirArbol(AVLNodeAttr *nodo, int espacio = 0, int nivel = 5);
   void imprimir();
 };
 

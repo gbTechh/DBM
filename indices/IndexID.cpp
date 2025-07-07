@@ -3,14 +3,15 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <vector>
 
-// AQUÍ sí puedes usar using namespace std si quieres
 using namespace std;
 
 // Constructor de AVLNode
-AVLNode::AVLNode(int id, std::string atributos)
-    : value(std::make_pair(id, atributos)), left(nullptr), right(nullptr),
-      height(1) {}
+AVLNode::AVLNode(int id, std::vector<std::string> atributos, int inicio_,
+                 int final_)
+    : value(std::make_pair(id, atributos)), byteInicio(inicio_),
+      byteFinal(final_), left(nullptr), right(nullptr), height(1) {}
 
 // Constructor de IndexID
 IndexID::IndexID() : root(nullptr) {}
@@ -18,7 +19,6 @@ IndexID::IndexID() : root(nullptr) {}
 // Destructor
 IndexID::~IndexID() { destroyTree(root); }
 
-// Implementación de métodos privados
 int IndexID::getHeight(AVLNode *node) { return node ? node->height : 0; }
 
 void IndexID::updateHeight(AVLNode *node) {
@@ -57,40 +57,32 @@ AVLNode *IndexID::rotateLeft(AVLNode *x) {
   return y;
 }
 
-AVLNode *IndexID::insertHelper(AVLNode *node, int id, std::string attributes) {
-  // Inserción normal de BST
+AVLNode *IndexID::insertHelper(AVLNode *node, unsigned int id,
+                               vector<string> atributos, int inicio,
+                               int final) {
   if (!node)
-    return new AVLNode(id, attributes);
+    return new AVLNode(id, atributos, inicio, final);
 
   if (id < node->value.first) {
-    node->left = insertHelper(node->left, id, attributes);
+    node->left = insertHelper(node->left, id, atributos, inicio, final);
   } else if (id > node->value.first) {
-    node->right = insertHelper(node->right, id, attributes);
+    node->right = insertHelper(node->right, id, atributos, inicio, final);
   } else {
-    node->value.second = attributes;
-    return node; // Valor duplicado
+    // ID duplicado → ignorar (no sobreescribir)
+    return node;
   }
 
-  // Actualizar altura
   updateHeight(node);
-
-  // Obtener factor de balance
   int balance = getBalance(node);
 
-  // Rotaciones
-  if (balance > 1 && id < node->left->value.first) {
+  if (balance > 1 && id < node->left->value.first)
     return rotateRight(node);
-  }
-
-  if (balance < -1 && id > node->right->value.first) {
+  if (balance < -1 && id > node->right->value.first)
     return rotateLeft(node);
-  }
-
   if (balance > 1 && id > node->left->value.first) {
     node->left = rotateLeft(node->left);
     return rotateRight(node);
   }
-
   if (balance < -1 && id < node->right->value.first) {
     node->right = rotateRight(node->right);
     return rotateLeft(node);
@@ -100,9 +92,8 @@ AVLNode *IndexID::insertHelper(AVLNode *node, int id, std::string attributes) {
 }
 
 AVLNode *IndexID::findMin(AVLNode *node) {
-  while (node->left) {
+  while (node->left)
     node = node->left;
-  }
   return node;
 }
 
@@ -127,6 +118,7 @@ AVLNode *IndexID::deleteHelper(AVLNode *node, int value) {
     } else {
       AVLNode *temp = findMin(node->right);
       node->value.first = temp->value.first;
+      node->value.second = temp->value.second;
       node->right = deleteHelper(node->right, temp->value.first);
     }
   }
@@ -137,19 +129,14 @@ AVLNode *IndexID::deleteHelper(AVLNode *node, int value) {
   updateHeight(node);
   int balance = getBalance(node);
 
-  if (balance > 1 && getBalance(node->left) >= 0) {
+  if (balance > 1 && getBalance(node->left) >= 0)
     return rotateRight(node);
-  }
-
   if (balance > 1 && getBalance(node->left) < 0) {
     node->left = rotateLeft(node->left);
     return rotateRight(node);
   }
-
-  if (balance < -1 && getBalance(node->right) <= 0) {
+  if (balance < -1 && getBalance(node->right) <= 0)
     return rotateLeft(node);
-  }
-
   if (balance < -1 && getBalance(node->right) > 0) {
     node->right = rotateRight(node->right);
     return rotateLeft(node);
@@ -174,9 +161,11 @@ void IndexID::destroyTree(AVLNode *node) {
   }
 }
 
-// Implementación de métodos públicos
-void IndexID::insert(int value, std::string attributes) {
-  root = insertHelper(root, value, attributes);
+// =============== MÉTODOS PÚBLICOS =====================
+
+void IndexID::insert(unsigned int value, vector<string> attributes, int inicio,
+                     int final) {
+  root = insertHelper(root, value, attributes, inicio, final);
 }
 
 void IndexID::remove(int value) { root = deleteHelper(root, value); }
@@ -186,11 +175,17 @@ void IndexID::inorder() {
   cout << endl;
 }
 
-bool IndexID::find(int value, std::pair<int, std::string> &registro) {
+bool IndexID::find(unsigned int value,
+                   pair<int, std::vector<std::string>> &registro, int &in,
+                   int &fin) {
   AVLNode *current = root;
   while (current) {
     if (value == current->value.first) {
-      registro = current->value;
+      registro.first = current->value.first;
+      // Concatenar atributos con separador (ej: espacio)
+      registro.second = current->value.second;
+      in = current->byteInicio;
+      fin = current->byteFinal;
       return true;
     }
     current = (value < current->value.first) ? current->left : current->right;
@@ -198,27 +193,25 @@ bool IndexID::find(int value, std::pair<int, std::string> &registro) {
   return false;
 }
 
-void IndexID::imprimirArbol(AVLNode *nodo, int espacio = 0, int nivel = 5) {
-  if (nodo == nullptr)
+void IndexID::imprimirArbol(AVLNode *nodo, int espacio, int nivel = 5) {
+  if (!nodo)
     return;
 
-  // Aumenta el espacio entre niveles
   espacio += nivel;
-
-  // Imprime primero el subárbol derecho
   imprimirArbol(nodo->right, espacio);
 
-  // Imprime el nodo actual después de espacios
   std::cout << std::endl;
   for (int i = nivel; i < espacio; i++)
     std::cout << " ";
-  std::cout << nodo->value.first << " " << nodo->value.second;
+  std::cout << nodo->value.first << " ";
+  for (const auto &attr : nodo->value.second)
+    std::cout << attr << " ";
 
-  // Luego el subárbol izquierdo
   imprimirArbol(nodo->left, espacio);
 }
+
 void IndexID::imprimir() {
   std::cout << "\nÁrbol AVL (vista rotada):\n";
-  imprimirArbol(root);
+  imprimirArbol(root, 0, 5);
   std::cout << "\n";
 }

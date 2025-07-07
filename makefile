@@ -3,10 +3,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -g -Wall
 
-# Directorios de origen
-SRC_DIRS = front disco file indices loader manager registro sql
-
-# Buscar todos los archivos .cpp en los directorios especificados
+# Archivos del servidor principal
 SRC = front/servidor.cpp \
       $(wildcard disco/*.cpp) \
       $(wildcard file/*.cpp) \
@@ -14,20 +11,45 @@ SRC = front/servidor.cpp \
       $(wildcard loader/*.cpp) \
       $(wildcard manager/*.cpp) \
       $(wildcard registro/*.cpp) \
-      $(wildcard sql/*.cpp)
+      $(wildcard sql/*.cpp) \
+      $(wildcard utils/*.cpp)
 
-# Nombre del ejecutable
 TARGET = servidor
 
-# Regla principal
-all: $(TARGET)
+# Directorio para ejecutables auxiliares
+BIN_DIR = bin
 
-# Regla para crear el ejecutable
+# Ejecutables auxiliares
+AUX_EXECUTABLES = $(BIN_DIR)/run_main
+
+# Archivos fuente para run_main
+MAIN_RUN_SRC = main.cpp
+MAIN_DEPS = \
+      $(wildcard disco/*.cpp) \
+      $(wildcard file/*.cpp) \
+      $(wildcard indices/*.cpp) \
+      $(wildcard loader/*.cpp) \
+      $(wildcard manager/*.cpp) \
+      $(wildcard sql/*.cpp) \
+      $(wildcard registro/*.cpp) \
+      $(wildcard utils/*.cpp)
+
+# Asegura que el directorio bin existe
+$(shell mkdir -p $(BIN_DIR))
+
+# Regla principal
+all: $(TARGET) $(AUX_EXECUTABLES)
+
+# Compilar el servidor completo
 $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-# Limpiar archivos generados
+# Compilar ejecutable auxiliar con main.cpp y módulos
+$(BIN_DIR)/run_main: $(MAIN_RUN_SRC) $(MAIN_DEPS)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+# Limpiar todo
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(AUX_EXECUTABLES)
 
 .PHONY: all clean

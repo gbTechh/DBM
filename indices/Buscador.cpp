@@ -28,15 +28,15 @@ Buscador::Buscador(vector<string> &campos, vector<string> &tipoDato,
 
       if (tipo == "int") {
         clave.tipo = TIPO_ENTERO;
-        clave.valorEntero = stoi(valor);
+        // clave.valorEntero = stoi(valor);
       } else if (tipo == "float") {
         clave.tipo = TIPO_FLOTANTE;
-        clave.valorFloat = stof(valor);
+        // clave.valorFloat = stof(valor);
       } else {
         clave.tipo = TIPO_STRING;
-        clave.valorString = strdup(valor.c_str());
-        if (!clave.valorString)
-          throw invalid_argument("Error! :(");
+        // clave.valorString = strdup(valor.c_str());
+        // if (!clave.valorString)
+        // invalid_argument("Error! :(");
       }
 
       unsigned long raw_id = stoul(registros[i][0]);
@@ -61,15 +61,15 @@ bool Buscador::insertReg(vector<string> registro) {
 
     if (tipo == "int") {
       clave.tipo = TIPO_ENTERO;
-      clave.valorEntero = stoi(valor);
+      // clave.valorEntero = stoi(valor);
     } else if (tipo == "float") {
       clave.tipo = TIPO_FLOTANTE;
-      clave.valorFloat = stof(valor);
+      // clave.valorFloat = stof(valor);
     } else {
       clave.tipo = TIPO_STRING;
-      clave.valorString = strdup(valor.c_str());
-      if (!clave.valorString)
-        return false;
+      // clave.valorString = strdup(valor.c_str());
+      // if (!clave.valorString)
+      //  return false;
     }
 
     unsigned long raw_id = stoul(registro[0]);

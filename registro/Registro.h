@@ -1,6 +1,7 @@
 #ifndef REGISTROS_H
 #define REGISTROS_H
 
+#include "../utils/Enum.h"
 #include <string>
 #include <vector>
 
@@ -12,7 +13,7 @@ struct Head {
 
 class Registro {
 public:
-  void AddColumn(std::string name, std::string type, int size);
+  void AddColumn(std::string name, EnumType type, int size);
   Head GetHeaderByIndex(int index);
   void AddHeader(std::string name, std::string type, int size);
 
@@ -29,13 +30,16 @@ public:
   void setHeaderLineWithoutID(std::string h);
 
   std::vector<std::string> getCamposNombre() const; // Nuevo método
-  std::vector<std::string> getTipoDato() const;    // Nuevo método
-  
+  std::vector<int> getCamposSize() const;           // Nuevo método
+  std::vector<std::string> getCamposTipo() const;   // Nuevo método
+  std::vector<std::string> getTipoDato() const;     // Nuevo método
+
 private:
   std::string headerLine;
   std::string headerLineWithouID;
   std::vector<Head> header;
   std::vector<std::string> camposNombre;
+  std::vector<std::string> camposTipo;
   std::vector<std::string> tipoDato;
   std::vector<std::vector<std::string>> registros;
 };

@@ -1,7 +1,10 @@
 #include "loader/DataLoader.h"
 #include "manager/DatabaseManager.h"
-#include "registro/Registro.h"
+#include "sql/Parser.h"
+#include "sql/Sql.h"
+#include "sql/Tokenizer.h"
 #include "utils/Parser.h"
+#include <cstddef>
 #include <iostream>
 
 using namespace std;
@@ -9,34 +12,54 @@ using namespace std;
 int main() {
   try {
 
+    DatabaseManager dbManager(
+        2, 2, 2, 10, 16); // 2 platos, 2 pistas, 100 sectores, 8 tamaño sector
     // 1. Inicializar el disco y el gestor de base de datos
     cout << "Inicializando disco..." << endl;
-    DatabaseManager dbManager(
-        2, 2, 100, 8); // 2 platos, 2 pistas, 100 sectores, 8 tamaño sector
 
     // 2. Cargar datos desde archivo
     string archivo = "datos.txt";
     cout << "Cargando datos desde '" << archivo << "'..." << endl;
     DataLoader loader;
     loader.loadFromFile(archivo, dbManager);
+    std::vector<std::string> campos = dbManager.getRegitro().getCamposNombre();
+    for (size_t i = 0; i < campos.size(); i++) {
+      std::cout << campos[i] << ", ";
+    }
+    std::cout << "\n";
 
-    Registro r = dbManager.getRegitro();
-    r.printHeader();
+    SQL sql("SELECT nombre,edad,telefono FROM data WHERE nombre = Raquel",
+            dbManager);
+    std::vector<std::tuple<int, int, int>> bites;
+    std::vector<std::pair<int, std::vector<std::string>>> registros =
+        sql.getRegistros(bites);
 
-    std::pair<int, std::string> registro;
-    dbManager.getRegistroByID(2, registro);
+    std::cout << "registros size: " << registros.size() << "\n";
+    for (size_t i = 0; i < registros.size(); ++i) {
+      const auto &fila =
+          registros[i].second; // accedemos al vector<string> de la pareja
+      for (size_t j = 0; j < fila.size(); ++j) {
+        std::cout << "Registro: " << fila[j] << ", ";
+      }
+      std::cout << "\n";
+    }
 
-    std::string v = "Juan";
-    bool exist = dbManager.getRegistroByAttr("name", v);
-    std::cout << v << " existe: " << exist << "\n";
-    dbManager.getIndexAttr().imprimir();
+    for (size_t i = 0; i < bites.size(); ++i) {
+      int id = std::get<0>(bites[i]);
+      int inicio = std::get<1>(bites[i]);
+      int final = std::get<2>(bites[i]);
+      dbManager.getDisco().mostrarUbicacion(inicio);
+    }
+    //  dbManager.getIndexAttr().imprimir();
 
-    cout << "ID: " << registro.first << " ATTRS: " << registro.second << "\n";
+    // cout << "ID: " << registro.first << " ATTRS: " << registro.second <<
+    // "\n";
 
-    std::string val = "Juan";
-    int b = dbManager.getRegistroByAttr("nombre", val);
-    cout << "JUAN: " << b << "\n";
-    cout << "value: " << val << "\n";
+    // std::string val = "Juan";
+    // int b = dbManager.getRegistroByAttr("nombre", val);
+    // cout << "JUAN: " << b << "\n";
+    // cout << "value: " << val << "\n";
+
     // 3. Mostrar resumen de registros almacenados
     // cout << "\n=== RESUMEN DE REGISTROS ===" << endl;
     // dbManager.displayAllRecords();
@@ -46,9 +69,35 @@ int main() {
     // cout << "\nBuscando registro con ID = " << idBuscar << "..." << endl;
     // Registro reg = dbManager.getRecordById(idBuscar);
     // cout << reg.toString() << endl;
+    std::string query = "SELECT nombre,edad,telefono FROM data WHERE nombre = "
+                        "Raquel AND edad = 26";
+
+    Tokenizer tokenizer(query);
+    auto tokens = tokenizer.tokenize();
+
+    Parser parser(tokens);
+    try {
+      Consulta c = parser.parse();
+
+      std::cout << "Campos: ";
+      for (const auto &campo : c.camposSeleccionados)
+        std::cout << campo << " ";
+      std::cout << "\nTabla: " << c.tabla << "\n";
+
+      for (size_t i = 0; i < c.condiciones.size(); ++i) {
+        const auto &cond = c.condiciones[i];
+        std::cout << "Condición: " << cond.campo << " " << cond.operador << " "
+                  << cond.valor << "\n";
+        if (i < c.conectores.size())
+          std::cout << "Conector: " << c.conectores[i] << "\n";
+      }
+
+    } catch (const std::exception &e) {
+      std::cerr << "Error al analizar: " << e.what() << "\n";
+    }
 
   } catch (const exception &e) {
-    cerr << "Error: " << e.what() << endl;
+    cerr << "Errorrr: " << e.what() << endl;
     return 1;
   }
 

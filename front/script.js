@@ -129,7 +129,7 @@ async function cargarHeaderDesdeTxt() {
         } else{
           console.log({loadResult: loadResult.header})
           // const lines = text.trim().split("\n");
-          generarCamposBusqueda(loadResult.header);
+          //generarCamposBusqueda(loadResult.header);
           alert(loadResult.message)
         }
 
@@ -139,7 +139,7 @@ async function cargarHeaderDesdeTxt() {
         console.error('Errorr cargando archivo:', error);
         console.error(error.message);
         document.getElementById('contador-registros').textContent = `Error: ${error.message}`;
-        alert(`Errorr al cargar datos: ${error.message}`);
+        alert(`Errorr al cargar datoss: ${error.message}`);
     }
 }
 
@@ -192,9 +192,27 @@ function buscarRegistros() {
     });
 }
 
-function mostrarResultados(data) {
-    const columnasSeleccionadas = Array.from(document.querySelectorAll("input[name='columnas']:checked"))
-        .map(cb => cb.value);
+function buscarConsulta(){
+    const query = document.getElementById("query").value;
+    console.log({query})
+    fetch('http://localhost:8080/buscar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({query})
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Respuesta:", data.data, data.headers);
+        mostrarResultados(data.data, data.headers);
+    })
+    .catch(err => {
+        console.error("Error al enviar datos:", err);
+        alert(`Error al buscar: ${err.message}`);
+    });
+}
+
+function mostrarResultados(data, headers) {
+
 
     const thead = document.querySelector("#resultados thead");
     const tbody = document.querySelector("#resultados tbody");
@@ -205,7 +223,7 @@ function mostrarResultados(data) {
 
     // Cabeceras
     const headerRow = document.createElement("tr");
-    columnasSeleccionadas.forEach(col => {
+    headers.forEach(col => {
         const th = document.createElement("th");
         th.textContent = col;
         headerRow.appendChild(th);
@@ -213,9 +231,12 @@ function mostrarResultados(data) {
     thead.appendChild(headerRow);
 
     // Filas de datos
-    data.forEach(fila => {
+    data.forEach(fila => {        
         const row = document.createElement("tr");
-        fila.forEach(celda => {
+        const tdid = document.createElement("td");
+        tdid.textContent = `${fila.id}`;
+        row.appendChild(tdid);
+        fila.valores.forEach(celda => {
             const td = document.createElement("td");
             td.textContent = celda;
             row.appendChild(td);

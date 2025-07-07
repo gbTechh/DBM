@@ -3,15 +3,17 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 class AVLNode {
 public:
-  std::pair<int, std::string> value;
+  std::pair<unsigned int, std::vector<std::string>> value;
   AVLNode *left;
   AVLNode *right;
   int height;
+  int byteInicio, byteFinal;
 
-  AVLNode(int id, std::string atributos);
+  AVLNode(int id, std::vector<std::string> atributos, int inicio, int final);
 };
 
 class IndexID {
@@ -24,7 +26,9 @@ private:
   int getBalance(AVLNode *node);
   AVLNode *rotateRight(AVLNode *y);
   AVLNode *rotateLeft(AVLNode *x);
-  AVLNode *insertHelper(AVLNode *node, int id, std::string atributos);
+  AVLNode *insertHelper(AVLNode *node, unsigned int id,
+                        std::vector<std::string> atributos, int inicio,
+                        int final);
   AVLNode *findMin(AVLNode *node);
   AVLNode *deleteHelper(AVLNode *node, int value);
   void inorderHelper(AVLNode *node);
@@ -34,10 +38,13 @@ public:
   IndexID();
   ~IndexID();
 
-  void insert(int value, std::string attributes);
+  void insert(unsigned int value, std::vector<std::string> attributes,
+              int inicio, int final);
   void remove(int value);
   void inorder();
-  bool find(int value, std::pair<int, std::string> &registro);
+  bool find(unsigned int value,
+            std::pair<int, std::vector<std::string>> &registro, int &in,
+            int &fin);
   void imprimirArbol(AVLNode *nodo, int espacio, int nivel);
   void imprimir();
 };

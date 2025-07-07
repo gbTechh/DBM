@@ -1,28 +1,25 @@
+// IndexAttr.cpp
 #include "IndexAttr.h"
 #include <algorithm>
 #include <iostream>
-#include <string>
+#include <variant>
 
-// AQUÍ sí puedes usar using namespace std si quieres
 using namespace std;
 
-// Constructor de AVLNodeAttr
-AVLNodeAttr::AVLNodeAttr(std::string attr)
-    : value(attr), left(nullptr), right(nullptr), height(1) {}
+AVLNodeAttr::AVLNodeAttr(const Campo_Codificado &k, unsigned int id)
+    : key(k), left(nullptr), right(nullptr), height(1) {
+  ids.push_back(id);
+}
 
-// Constructor de IndexAttr
 IndexAttr::IndexAttr() : root(nullptr) {}
 
-// Destructor
 IndexAttr::~IndexAttr() { destroyTree(root); }
 
-// Implementación de métodos privados
 int IndexAttr::getHeight(AVLNodeAttr *node) { return node ? node->height : 0; }
 
 void IndexAttr::updateHeight(AVLNodeAttr *node) {
-  if (node) {
+  if (node)
     node->height = 1 + max(getHeight(node->left), getHeight(node->right));
-  }
 }
 
 int IndexAttr::getBalance(AVLNodeAttr *node) {
@@ -32,65 +29,52 @@ int IndexAttr::getBalance(AVLNodeAttr *node) {
 AVLNodeAttr *IndexAttr::rotateRight(AVLNodeAttr *y) {
   AVLNodeAttr *x = y->left;
   AVLNodeAttr *T2 = x->right;
-
   x->right = y;
   y->left = T2;
-
   updateHeight(y);
   updateHeight(x);
-
   return x;
 }
 
 AVLNodeAttr *IndexAttr::rotateLeft(AVLNodeAttr *x) {
   AVLNodeAttr *y = x->right;
   AVLNodeAttr *T2 = y->left;
-
   y->left = x;
   x->right = T2;
-
   updateHeight(x);
   updateHeight(y);
-
   return y;
 }
 
-AVLNodeAttr *IndexAttr::insertHelper(AVLNodeAttr *node, std::string column,
-                                     std::string atributo) {
-  // Inserción normal de BST
-  std::string attr = column + ":" + atributo;
+AVLNodeAttr *IndexAttr::insertHelper(AVLNodeAttr *node,
+                                     const Campo_Codificado &key,
+                                     unsigned int id) {
   if (!node)
-    return new AVLNodeAttr(attr);
+    return new AVLNodeAttr(key, id);
 
-  if (attr < node->value) {
-    node->left = insertHelper(node->left, column, atributo);
-  } else if (attr > node->value) {
-    node->right = insertHelper(node->right, column, atributo);
-  } else {
-    return node; // Valor duplicado
+  if (key == node->key) {
+    node->ids.push_back(id);
+    sort(node->ids.begin(), node->ids.end());
+    return node;
   }
 
-  // Actualizar altura
-  updateHeight(node);
+  if (key < node->key)
+    node->left = insertHelper(node->left, key, id);
+  else
+    node->right = insertHelper(node->right, key, id);
 
-  // Obtener factor de balance
+  updateHeight(node);
   int balance = getBalance(node);
 
-  // Rotaciones
-  if (balance > 1 && attr < node->left->value) {
+  if (balance > 1 && key < node->left->key)
     return rotateRight(node);
-  }
-
-  if (balance < -1 && attr > node->right->value) {
+  if (balance < -1 && key > node->right->key)
     return rotateLeft(node);
-  }
-
-  if (balance > 1 && attr > node->left->value) {
+  if (balance > 1 && key > node->left->key) {
     node->left = rotateLeft(node->left);
     return rotateRight(node);
   }
-
-  if (balance < -1 && attr < node->right->value) {
+  if (balance < -1 && key < node->right->key) {
     node->right = rotateRight(node->right);
     return rotateLeft(node);
   }
@@ -98,57 +82,39 @@ AVLNodeAttr *IndexAttr::insertHelper(AVLNodeAttr *node, std::string column,
   return node;
 }
 
-AVLNodeAttr *IndexAttr::findMin(AVLNodeAttr *node) {
-  while (node->left) {
-    node = node->left;
-  }
-  return node;
-}
-
-AVLNodeAttr *IndexAttr::deleteHelper(AVLNodeAttr *node, std::string value) {
+AVLNodeAttr *IndexAttr::deleteHelper(AVLNodeAttr *node,
+                                     const Campo_Codificado &key) {
   if (!node)
-    return node;
+    return nullptr;
 
-  if (value < node->value) {
-    node->left = deleteHelper(node->left, value);
-  } else if (value > node->value) {
-    node->right = deleteHelper(node->right, value);
+  if (key < node->key) {
+    node->left = deleteHelper(node->left, key);
+  } else if (key > node->key) {
+    node->right = deleteHelper(node->right, key);
   } else {
     if (!node->left || !node->right) {
       AVLNodeAttr *temp = node->left ? node->left : node->right;
-      if (!temp) {
-        temp = node;
-        node = nullptr;
-      } else {
-        *node = *temp;
-      }
-      delete temp;
+      delete node;
+      return temp;
     } else {
       AVLNodeAttr *temp = findMin(node->right);
-      node->value = temp->value;
-      node->right = deleteHelper(node->right, temp->value);
+      node->key = temp->key;
+      node->ids = temp->ids;
+      node->right = deleteHelper(node->right, temp->key);
     }
   }
-
-  if (!node)
-    return node;
 
   updateHeight(node);
   int balance = getBalance(node);
 
-  if (balance > 1 && getBalance(node->left) >= 0) {
+  if (balance > 1 && getBalance(node->left) >= 0)
     return rotateRight(node);
-  }
-
   if (balance > 1 && getBalance(node->left) < 0) {
     node->left = rotateLeft(node->left);
     return rotateRight(node);
   }
-
-  if (balance < -1 && getBalance(node->right) <= 0) {
+  if (balance < -1 && getBalance(node->right) <= 0)
     return rotateLeft(node);
-  }
-
   if (balance < -1 && getBalance(node->right) > 0) {
     node->right = rotateRight(node->right);
     return rotateLeft(node);
@@ -157,12 +123,10 @@ AVLNodeAttr *IndexAttr::deleteHelper(AVLNodeAttr *node, std::string value) {
   return node;
 }
 
-void IndexAttr::inorderHelper(AVLNodeAttr *node) {
-  if (node) {
-    inorderHelper(node->left);
-    cout << node->value << " ";
-    inorderHelper(node->right);
-  }
+AVLNodeAttr *IndexAttr::findMin(AVLNodeAttr *node) {
+  while (node->left)
+    node = node->left;
+  return node;
 }
 
 void IndexAttr::destroyTree(AVLNodeAttr *node) {
@@ -173,56 +137,170 @@ void IndexAttr::destroyTree(AVLNodeAttr *node) {
   }
 }
 
-// Implementación de métodos públicos
-void IndexAttr::insert(std::string column, std::string attributes) {
-  root = insertHelper(root, column, attributes);
+void IndexAttr::insert(const Campo_Codificado &key, unsigned int id) {
+  root = insertHelper(root, key, id);
 }
 
-void IndexAttr::remove(std::string value) { root = deleteHelper(root, value); }
-
-void IndexAttr::inorder() {
-  inorderHelper(root);
-  cout << endl;
+void IndexAttr::remove(const Campo_Codificado &key) {
+  root = deleteHelper(root, key);
 }
 
-bool IndexAttr::find(std::string column, std::string &attr) {
-  std::string value = column + ":" + attr;
+std::vector<unsigned int> IndexAttr::find(const Campo_Codificado &key) {
   AVLNodeAttr *current = root;
-  std::cout<<"Curren value 1: "<<current->value<<"\n";
-  std::cout<<"value 1: "<<value<<"\n";
   while (current) {
-    std::cout<<"Curren value: "<<current->value<<"\n";
-    if (value == current->value) {
-      value = current->value;
-      return true;
-    }
-    current = (value < current->value) ? current->left : current->right;
+    if (key == current->key)
+      return current->ids;
+    current = (key < current->key) ? current->left : current->right;
   }
-  return false;
+  return {};
 }
 
-void IndexAttr::imprimirArbol(AVLNodeAttr *nodo, int espacio = 0,
-                              int nivel = 5) {
-  if (nodo == nullptr)
+void IndexAttr::inorderHelper(AVLNodeAttr *node) {
+  if (!node)
+    return;
+  inorderHelper(node->left);
+  cout << node->key.campo << ": ";
+  switch (node->key.tipo) {
+  case TIPO_ENTERO:
+    if (std::holds_alternative<unsigned long long>(node->key.valor))
+      cout << std::get<unsigned long long>(node->key.valor);
+    else
+      cout << "[Error: tipo esperado int]";
+    break;
+  case TIPO_FLOTANTE:
+    if (std::holds_alternative<float>(node->key.valor))
+      cout << std::get<float>(node->key.valor);
+    else
+      cout << "[Error: tipo esperado float]";
+    break;
+  case TIPO_STRING:
+    if (std::holds_alternative<std::string>(node->key.valor))
+      cout << std::get<std::string>(node->key.valor);
+    else
+      cout << "[Error: tipo esperado string]";
+    break;
+  }
+  cout << " → IDs: ";
+  for (auto id : node->ids)
+    cout << id << " ";
+  cout << endl;
+  inorderHelper(node->right);
+}
+
+void IndexAttr::inorder() { inorderHelper(root); }
+
+void IndexAttr::setCampos(const std::vector<std::string> &_campos) {
+  campos = _campos;
+}
+
+void IndexAttr::setTipos(const std::vector<std::string> &_tipos) {
+  tipos = _tipos;
+}
+
+std::vector<unsigned int> IndexAttr::buscar(const std::string &campo,
+                                            const std::string &valor) {
+  size_t campoIndex = 0;
+  for (size_t i = 0; i < campos.size(); ++i) {
+    if (campos[i] == campo) {
+      campoIndex = i;
+      break;
+    }
+  }
+  if (campoIndex >= tipos.size())
+    return {};
+
+  std::string tipo = tipos[campoIndex];
+  Campo_Codificado clave;
+  clave.campo = static_cast<unsigned int>(campoIndex);
+
+  if (tipo == "int") {
+    clave.tipo = TIPO_ENTERO;
+    clave.valor = std::stoull(valor);
+  } else if (tipo == "float") {
+    clave.tipo = TIPO_FLOTANTE;
+    clave.valor = stof(valor);
+  } else {
+    clave.tipo = TIPO_STRING;
+    clave.valor = valor;
+  }
+
+  return find(clave);
+}
+
+void IndexAttr::buscarRangoHelper(AVLNodeAttr *node, unsigned int columnaIndex,
+                                  const std::string &operador,
+                                  const std::string &valor,
+                                  std::vector<unsigned int> &resultados) {
+  if (!node)
     return;
 
-  // Aumenta el espacio entre niveles
+  // 🔒 Solo comparar si el campo coincide
+  if (node->key.campo != columnaIndex) {
+    buscarRangoHelper(node->left, columnaIndex, operador, valor, resultados);
+    buscarRangoHelper(node->right, columnaIndex, operador, valor, resultados);
+    return;
+  }
+
+  int cmp = node->key.comparar(valor); // <0 menor, ==0 igual, >0 mayor
+
+  // Recorrer según operador
+  if (operador == "=") {
+    if (cmp == 0)
+      resultados.insert(resultados.end(), node->ids.begin(), node->ids.end());
+
+  } else if (operador == "<") {
+    if (cmp < 0)
+      resultados.insert(resultados.end(), node->ids.begin(), node->ids.end());
+
+  } else if (operador == "<=") {
+    if (cmp <= 0)
+      resultados.insert(resultados.end(), node->ids.begin(), node->ids.end());
+
+  } else if (operador == ">") {
+    if (cmp > 0)
+      resultados.insert(resultados.end(), node->ids.begin(), node->ids.end());
+
+  } else if (operador == ">=") {
+    if (cmp >= 0)
+      resultados.insert(resultados.end(), node->ids.begin(), node->ids.end());
+  }
+
+  buscarRangoHelper(node->left, columnaIndex, operador, valor, resultados);
+  buscarRangoHelper(node->right, columnaIndex, operador, valor, resultados);
+}
+
+std::vector<unsigned int> IndexAttr::buscarRango(const std::string &columna,
+                                                 const std::string &operador,
+                                                 const std::string &valor) {
+  std::vector<unsigned int> resultados;
+
+  // Convertir columna a índice
+  unsigned int columnaIndex = 0;
+  for (unsigned int i = 0; i < campos.size(); ++i) {
+    if (campos[i] == columna) {
+      columnaIndex = i;
+      break;
+    }
+  }
+
+  buscarRangoHelper(root, columnaIndex, operador, valor, resultados);
+  return resultados;
+}
+
+void IndexAttr::imprimirArbol(AVLNodeAttr *nodo, int espacio, int nivel) {
+  if (!nodo)
+    return;
   espacio += nivel;
-
-  // Imprime primero el subárbol derecho
   imprimirArbol(nodo->right, espacio);
-
-  // Imprime el nodo actual después de espacios
-  std::cout << std::endl;
+  cout << endl;
   for (int i = nivel; i < espacio; i++)
-    std::cout << " ";
-  std::cout << nodo->value;
-
-  // Luego el subárbol izquierdo
+    cout << " ";
+  cout << nodo->key.campo;
   imprimirArbol(nodo->left, espacio);
 }
+
 void IndexAttr::imprimir() {
-  std::cout << "\nÁrbol AVL (vista rotada):\n";
+  cout << "\nÁrbol AVL (vista rotada):\n";
   imprimirArbol(root);
-  std::cout << "\n";
+  cout << endl;
 }
