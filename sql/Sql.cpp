@@ -18,6 +18,11 @@ bool SQL::cumpleCondiciones(const std::vector<std::string> &registro) {
   const auto &headers = dbManager.getRegitro().getCamposNombre();
   const auto &tipos = dbManager.getRegitro().getCamposTipo();
 
+  if (registro.size() != headers.size()) {
+    std::cout << "Registro incompleto: se esperaban " << headers.size()
+              << " campos, pero se recibieron " << registro.size() << std::endl;
+    return false;
+  }
   bool resultado = true;
 
   // Debug output
@@ -28,7 +33,7 @@ bool SQL::cumpleCondiciones(const std::vector<std::string> &registro) {
   }
   std::cout << std::endl;
 
-  for (size_t i = 1; i < consulta.condiciones.size(); ++i) {
+  for (size_t i = 0; i < consulta.condiciones.size(); ++i) {
     const auto &cond = consulta.condiciones[i];
 
     // Obtener índice del campo
@@ -198,6 +203,9 @@ SQL::getRegistros(std::vector<std::tuple<int, int, int>> &bitesVector) {
     if (!dbManager.getIndexID().find(id, registro, inicio, fin)) {
       std::cout << "No se pudo encontrar registro con ID: " << id << std::endl;
       continue;
+    }
+    if (registro.second.empty() || registro.second[0] != std::to_string(id)) {
+        registro.second.insert(registro.second.begin(), std::to_string(id));
     }
 
     std::cout << "Verificando registro con ID " << id << std::endl;
