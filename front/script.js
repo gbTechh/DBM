@@ -212,8 +212,6 @@ function buscarConsulta(){
 }
 
 function mostrarResultados(data, headers) {
-
-
     const thead = document.querySelector("#resultados thead");
     const tbody = document.querySelector("#resultados tbody");
 
@@ -228,19 +226,37 @@ function mostrarResultados(data, headers) {
         th.textContent = col;
         headerRow.appendChild(th);
     });
+    const ubicTh = document.createElement("th");
+    ubicTh.textContent = "Ubicación física";
+    headerRow.appendChild(ubicTh);
     thead.appendChild(headerRow);
 
     // Filas de datos
     data.forEach(fila => {        
         const row = document.createElement("tr");
+
         const tdid = document.createElement("td");
         tdid.textContent = `${fila.id}`;
         row.appendChild(tdid);
+
         fila.valores.forEach(celda => {
             const td = document.createElement("td");
             td.textContent = celda;
             row.appendChild(td);
         });
+
+        // ➕ Mostrar ubicaciones
+        const ubicTd = document.createElement("td");
+        if (fila.ubicaciones && fila.ubicaciones.length > 0) {
+            const ubicacionesTexto = fila.ubicaciones.map(u => {
+                return `P:${u.plato} Sup:${u.superficie} Pi:${u.pista} Sec:${u.sector}`;
+            }).join(" | ");
+            ubicTd.textContent = ubicacionesTexto;
+        } else {
+            ubicTd.textContent = "N/A";
+        }
+
+        row.appendChild(ubicTd);
         tbody.appendChild(row);
     });
 }

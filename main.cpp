@@ -27,7 +27,7 @@ int main() {
     }
     std::cout << "\n";
 
-    SQL sql("SELECT nombre,edad,telefono FROM data WHERE nombre = Lucia",
+    SQL sql("SELECT nombre,edad,telefono FROM data WHERE nombre = Carlos",
             dbManager);
     std::vector<std::tuple<int, int, int>> bites;
     std::vector<std::pair<int, std::vector<std::string>>> registros =
@@ -70,7 +70,7 @@ int main() {
     // Registro reg = dbManager.getRecordById(idBuscar);
     // cout << reg.toString() << endl;
     std::string query = "SELECT nombre,edad,telefono FROM data WHERE nombre = "
-                        "Raquel AND edad = 26";
+                        "Carlos AND edad = 40";
 
     Tokenizer tokenizer(query);
     auto tokens = tokenizer.tokenize();

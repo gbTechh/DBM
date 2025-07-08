@@ -233,3 +233,60 @@ SQL::getRegistros(std::vector<std::tuple<int, int, int>> &bitesVector) {
             << " registros ===" << std::endl;
   return registros;
 }
+
+
+
+std::vector<std::pair<int, std::vector<std::string>>> SQL::getRegistrosConUbicacion(std::vector<std::pair<UbicacionFisica, UbicacionFisica>> &ubicacionesVector) {
+  std::vector<std::pair<int, std::vector<std::string>>> registros;
+  std::vector<unsigned int> idsTotales;
+
+  if (consulta.condiciones.empty()) return registros;
+
+  for (size_t i = 0; i < consulta.condiciones.size(); ++i) {
+    const auto &cond = consulta.condiciones[i];
+    std::vector<unsigned int> ids = (cond.operador == "=")
+        ? dbManager.getIndexAttr().buscar(cond.campo, cond.valor)
+        : dbManager.getIndexAttr().buscarRango(cond.campo, cond.operador, cond.valor);
+
+    if (i == 0) idsTotales = ids;
+    else {
+      const std::string &conector = consulta.conectores[i - 1];
+      if (conector == "AND") {
+        std::vector<unsigned int> interseccion;
+        std::sort(idsTotales.begin(), idsTotales.end());
+        std::sort(ids.begin(), ids.end());
+        std::set_intersection(idsTotales.begin(), idsTotales.end(), ids.begin(), ids.end(), std::back_inserter(interseccion));
+        idsTotales = interseccion;
+      } else if (conector == "OR") {
+        std::set<unsigned int> unionSet(idsTotales.begin(), idsTotales.end());
+        unionSet.insert(ids.begin(), ids.end());
+        idsTotales.assign(unionSet.begin(), unionSet.end());
+      }
+    }
+  }
+
+  for (unsigned int id : idsTotales) {
+    std::pair<int, std::vector<std::string>> registro;
+    int inicio, fin;
+    if (!dbManager.getIndexID().find(id, registro, inicio, fin)) continue;
+    bool necesitaVerificar = false;
+    for (const auto &cond : consulta.condiciones) {
+      if (cond.operador != "=") {
+        necesitaVerificar = true;
+        break;
+      }
+    }
+    if (necesitaVerificar && !cumpleCondiciones(registro.second)) continue;
+
+    auto ubicaciones = dbManager.getDisco().calcularUbicacionesRegistro(inicio, fin - inicio);
+    if (!ubicaciones.empty()) {
+      ubicacionesVector.emplace_back(ubicaciones.front(), ubicaciones.back());
+    } else {
+      UbicacionFisica dummy{};
+      ubicacionesVector.emplace_back(dummy, dummy);
+    }
+
+    registros.push_back(registro);
+  }
+  return registros;
+}

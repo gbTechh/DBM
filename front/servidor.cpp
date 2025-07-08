@@ -154,14 +154,48 @@ int main() {
       std::vector<std::tuple<int, int, int>> bites;
       std::vector<std::pair<int, std::vector<std::string>>> registros =
           sql.getRegistros(bites);
+
+/*lo nuevo que agregue */
+    //  std::vector<std::pair<UbicacionFisica, UbicacionFisica>> ubicaciones;
+    //  std::vector<std::pair<int, std::vector<std::string>>> registros = sql.getRegistrosConUbicacion(ubicaciones);
+/*aqui se acaba esta parte */
+
       nlohmann::json data_json = nlohmann::json::array();
       std::cout << "registros size: " << registros.size() << "\n";
+/* esto estariamos quintando
       for (const auto &[id, fila] : registros) {
         nlohmann::json fila_json;
         fila_json["id"] = id;
         fila_json["valores"] = fila;
         data_json.push_back(fila_json);
       }
+*/
+
+        for (size_t i = 0; i < registros.size(); ++i) {
+          const auto &[id, fila] = registros[i];
+          const auto &[_, inicio, fin] = bites[i];
+
+          int size = fin - inicio;
+          auto ubicaciones = dbmanager->getDisco().calcularUbicacionesRegistro(inicio, size);
+
+          nlohmann::json ubicaciones_json = json::array();
+          for (const auto &u : ubicaciones) {
+            ubicaciones_json.push_back({
+              {"plato", u.plato},
+              {"superficie", u.superficie},
+              {"pista", u.pista},
+              {"sector", u.sector}
+            });
+          }
+
+          nlohmann::json fila_json;
+          fila_json["id"] = id;
+          fila_json["valores"] = fila;
+          fila_json["ubicaciones"] = ubicaciones_json;
+
+          data_json.push_back(fila_json);
+        }
+
       std::vector<std::string> headers =
           dbmanager->getRegitro().getCamposNombre();
       nlohmann::json headers_json = headers;
@@ -171,6 +205,7 @@ int main() {
       resultado["data"] = data_json; // Esto asumo que ya lo construiste
       resultado["headers"] = headers_json;
 
+      std::cout << resultado.dump(4) << std::endl; // ESTA LINEA MAS AGREGUEEE
       res.set_content(resultado.dump(), "application/json");
     } catch (const nlohmann::json::exception &e) {
       std::cerr << "Error al procesar JSON: " << e.what() << std::endl;
