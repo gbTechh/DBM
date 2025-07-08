@@ -1,5 +1,4 @@
 #include "Parser.h"
-#include <algorithm>
 
 Parser::Parser(const std::vector<std::string> &tokens)
     : tokens(tokens), pos(0) {}

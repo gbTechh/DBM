@@ -1,6 +1,5 @@
 #include "DataLoader.h"
 #include "../file/File.h"
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -37,14 +36,7 @@ void DataLoader::loadFromFile(const std::string &filename,
   while (file.ReadLine(line)) {
     std::vector<std::string> lineSplited = split(line, separador);
     dbManager.insertRegistro(lineSplited);
-
-    // buscador(campos_nombre, tipoDato, registros);
-    //  Registro registro = parseLineToRecord(line);
-    //  dbManager.insertRegistro(registro); // Insertar en disco e índice
-    //   registros.push_back(registro);
   }
-
-  // return registros;
 }
 
 void DataLoader::getColumnHead(std::string line) {}
@@ -62,26 +54,3 @@ std::vector<std::string> DataLoader::split(const std::string &str,
 
   return tokens;
 }
-
-// Registro DataLoader::parseLineToRecord(const std::string &line) {
-//   std::istringstream iss(line);
-//   Registro registro;
-//   std::string value;
-//   int fieldIndex = 0;
-
-//   while (iss >> value) {
-//     // Aquí puedes mejorar usando nombres de campo leídos de la cabecera si
-//     lo
-//     // deseas
-//     std::string fieldName = "campo" + std::to_string(fieldIndex++);
-//     registro.atributos[fieldName] = value;
-//   }
-
-//   // Asignamos un ID básico basado en hash simple del contenido
-//   // OJO: esto es solo un ejemplo. Puedes tener un generador de IDs único si
-//   lo
-//   // prefieres.
-//   registro.id = std::hash<std::string>{}(line);
-
-//   return registro;
-// }

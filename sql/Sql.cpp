@@ -28,7 +28,7 @@ bool SQL::cumpleCondiciones(const std::vector<std::string> &registro) {
   }
   std::cout << std::endl;
 
-  for (size_t i = 0; i < consulta.condiciones.size(); ++i) {
+  for (size_t i = 1; i < consulta.condiciones.size(); ++i) {
     const auto &cond = consulta.condiciones[i];
 
     // Obtener índice del campo
@@ -50,9 +50,9 @@ bool SQL::cumpleCondiciones(const std::vector<std::string> &registro) {
               << ", tipo: " << tipo << ")" << std::endl;
 
     bool cumple = false;
-
+    std::cout << "TIPO: " << tipo << "\n";
     try {
-      if (tipo == "INT") {
+      if (tipo == "int") {
         int val = std::stoi(valor);
         int esp = std::stoi(esperado);
 
@@ -69,7 +69,7 @@ bool SQL::cumpleCondiciones(const std::vector<std::string> &registro) {
         else if (operador == ">=")
           cumple = val >= esp;
 
-      } else if (tipo == "FLOAT" || tipo == "DECIMAL") {
+      } else if (tipo == "float" || tipo == "decimal") {
         double val = std::stod(valor);
         double esp = std::stod(cond.valor);
         double epsilon = 0.000001;
@@ -234,28 +234,34 @@ SQL::getRegistros(std::vector<std::tuple<int, int, int>> &bitesVector) {
   return registros;
 }
 
-
-
-std::vector<std::pair<int, std::vector<std::string>>> SQL::getRegistrosConUbicacion(std::vector<std::pair<UbicacionFisica, UbicacionFisica>> &ubicacionesVector) {
+std::vector<std::pair<int, std::vector<std::string>>>
+SQL::getRegistrosConUbicacion(
+    std::vector<std::pair<UbicacionFisica, UbicacionFisica>>
+        &ubicacionesVector) {
   std::vector<std::pair<int, std::vector<std::string>>> registros;
   std::vector<unsigned int> idsTotales;
 
-  if (consulta.condiciones.empty()) return registros;
+  if (consulta.condiciones.empty())
+    return registros;
 
   for (size_t i = 0; i < consulta.condiciones.size(); ++i) {
     const auto &cond = consulta.condiciones[i];
-    std::vector<unsigned int> ids = (cond.operador == "=")
-        ? dbManager.getIndexAttr().buscar(cond.campo, cond.valor)
-        : dbManager.getIndexAttr().buscarRango(cond.campo, cond.operador, cond.valor);
+    std::vector<unsigned int> ids =
+        (cond.operador == "=")
+            ? dbManager.getIndexAttr().buscar(cond.campo, cond.valor)
+            : dbManager.getIndexAttr().buscarRango(cond.campo, cond.operador,
+                                                   cond.valor);
 
-    if (i == 0) idsTotales = ids;
+    if (i == 0)
+      idsTotales = ids;
     else {
       const std::string &conector = consulta.conectores[i - 1];
       if (conector == "AND") {
         std::vector<unsigned int> interseccion;
         std::sort(idsTotales.begin(), idsTotales.end());
         std::sort(ids.begin(), ids.end());
-        std::set_intersection(idsTotales.begin(), idsTotales.end(), ids.begin(), ids.end(), std::back_inserter(interseccion));
+        std::set_intersection(idsTotales.begin(), idsTotales.end(), ids.begin(),
+                              ids.end(), std::back_inserter(interseccion));
         idsTotales = interseccion;
       } else if (conector == "OR") {
         std::set<unsigned int> unionSet(idsTotales.begin(), idsTotales.end());
@@ -268,7 +274,8 @@ std::vector<std::pair<int, std::vector<std::string>>> SQL::getRegistrosConUbicac
   for (unsigned int id : idsTotales) {
     std::pair<int, std::vector<std::string>> registro;
     int inicio, fin;
-    if (!dbManager.getIndexID().find(id, registro, inicio, fin)) continue;
+    if (!dbManager.getIndexID().find(id, registro, inicio, fin))
+      continue;
     bool necesitaVerificar = false;
     for (const auto &cond : consulta.condiciones) {
       if (cond.operador != "=") {
@@ -276,9 +283,11 @@ std::vector<std::pair<int, std::vector<std::string>>> SQL::getRegistrosConUbicac
         break;
       }
     }
-    if (necesitaVerificar && !cumpleCondiciones(registro.second)) continue;
+    if (necesitaVerificar && !cumpleCondiciones(registro.second))
+      continue;
 
-    auto ubicaciones = dbManager.getDisco().calcularUbicacionesRegistro(inicio, fin - inicio);
+    auto ubicaciones =
+        dbManager.getDisco().calcularUbicacionesRegistro(inicio, fin - inicio);
     if (!ubicaciones.empty()) {
       ubicacionesVector.emplace_back(ubicaciones.front(), ubicaciones.back());
     } else {
