@@ -100,37 +100,6 @@ int main() {
         }
       });
 
-  // Ruta GET para obtener el encabezado
-  //   svr.Get("/obtener-encabezado",
-  //           [](const httplib::Request &req, httplib::Response &res) {
-  //             res.set_header("Access-Control-Allow-Origin", "*");
-
-  //             if (!dbmanager) {
-  //               res.status = 500;
-  //               res.set_content("{\"status\": \"error\", \"message\": \"Base
-  //               de "
-  //                               "datos no configurada\"}",
-  //                               "application/json");
-  //               return;
-  //             }
-
-  //             try {
-  //               Registro r = dbmanager->getRegitro();
-  //               vector<string> encabezado = r.GetHeaderByIndex(1);
-  //               json resultado;
-  //               resultado["status"] = "success";
-  //               resultado["encabezado"] = encabezado;
-
-  //               res.set_content(resultado.dump(), "application/json");
-  //             } catch (const exception &e) {
-  //               cerr << "Error al obtener encabezado: " << e.what() << endl;
-  //               res.status = 400;
-  //               res.set_content("{\"status\": \"error\", \"message\": \"Error
-  //               al "
-  //                               "obtener encabezado\"}",
-  //                               "application/json");
-  //             }
-  //           });
 
   // Ruta POST para buscar por atributo
   svr.Post("/buscar", [](const httplib::Request &req, httplib::Response &res) {
@@ -189,7 +158,6 @@ int main() {
           }
 
           nlohmann::json fila_json;
-          fila_json["id"] = id;
           fila_json["valores"] = fila;
           fila_json["ubicaciones"] = ubicaciones_json;
 

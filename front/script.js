@@ -234,11 +234,7 @@ function mostrarResultados(data, headers) {
     // Filas de datos
     data.forEach(fila => {        
         const row = document.createElement("tr");
-
-        const tdid = document.createElement("td");
-        tdid.textContent = `${fila.id}`;
-        row.appendChild(tdid);
-
+    
         fila.valores.forEach(celda => {
             const td = document.createElement("td");
             td.textContent = celda;

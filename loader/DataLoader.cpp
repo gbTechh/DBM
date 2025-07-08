@@ -11,7 +11,6 @@ DataLoader::DataLoader() {};
 void DataLoader::loadFromFile(const std::string &filename,
                               DatabaseManager &dbManager) {
   File file(filename); // Abre el archivo
-  // std::vector<Registro> registros;
 
   // Leer cabecera (tipos o nombres de campos)
   std::string header;
