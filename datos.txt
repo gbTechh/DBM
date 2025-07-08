@@ -1,4 +1,4 @@
-index:int:10|item:varchar:40|cost:double:10|tax:double:10|total:double:10
+index:int:10|item:varchar:40|cost:decimal:10|tax:decimal:10|total:decimal:10
 1|Fruit of the Loom Girl's Socks|7.97|0.60|8.57
 2|Rawlings Little League Baseball|2.97|0.22|3.19
 3|Secret Antiperspirant|1.29|0.10|1.39
