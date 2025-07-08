@@ -23,6 +23,7 @@ public:
   std::vector<std::pair<int, std::vector<std::string>>>
   getRegistros(std::vector<std::tuple<int, int, int>> &bitesVector);
   Consulta consulta;
+  Consulta getConsulta(){ return consulta;}
   SQL(const std::string &query, DatabaseManager &dbManager);
   std::vector<std::pair<int, std::vector<std::string>>> getRegistrosConUbicacion(std::vector<std::pair<UbicacionFisica, UbicacionFisica>> &ubicacionesVector) ;
 };
