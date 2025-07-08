@@ -27,7 +27,7 @@ int main() {
     }
     std::cout << "\n";
 
-    SQL sql("SELECT nombre,edad,telefono FROM data WHERE nombre = Carlos",
+    SQL sql("SELECT nombre,edad,telefono FROM data WHERE edad = 30.9",
             dbManager);
     std::vector<std::tuple<int, int, int>> bites;
     std::vector<std::pair<int, std::vector<std::string>>> registros =

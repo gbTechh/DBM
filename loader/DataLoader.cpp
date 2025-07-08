@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+char separador = '|';
 DataLoader::DataLoader() {};
 
 void DataLoader::loadFromFile(const std::string &filename,
@@ -19,7 +20,7 @@ void DataLoader::loadFromFile(const std::string &filename,
     throw std::runtime_error(
         "El archivo está vacío o no se pudo leer la cabecera.");
   } else {
-    std::vector<std::string> campos = split(header, ',');
+    std::vector<std::string> campos = split(header, separador);
     for (const auto &campo : campos) {
       std::vector<std::string> partes = split(campo, ':');
       int size = std::stoi(partes[2]);
@@ -34,7 +35,7 @@ void DataLoader::loadFromFile(const std::string &filename,
   // Leer registros línea por línea
   std::string line;
   while (file.ReadLine(line)) {
-    std::vector<std::string> lineSplited = split(line, ',');
+    std::vector<std::string> lineSplited = split(line, separador);
     dbManager.insertRegistro(lineSplited);
 
     // buscador(campos_nombre, tipoDato, registros);

@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -19,7 +20,7 @@ struct Consulta {
 
 class Parser {
 public:
-  explicit Parser(const std::vector<std::string> &tokens);
+  Parser(const std::vector<std::string> &tokens);
   Consulta parse();
 
 private:
@@ -29,9 +30,9 @@ private:
   std::string current();
   void advance();
   void expect(const std::string &expected);
-
   std::vector<std::string> parseCampos();
   Condicion parseCondicion();
+  std::string parseValor();
 };
 
 #endif

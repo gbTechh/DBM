@@ -1,4 +1,5 @@
 #include "Tokenizer.h"
+#include <algorithm>
 #include <cctype>
 #include <cstring>
 
@@ -9,45 +10,101 @@ void Tokenizer::skipWhitespace() {
     ++pos;
 }
 
-std::string Tokenizer::nextToken() {
-  skipWhitespace();
-  if (pos >= input.size())
-    return "";
-
-  // Operadores multi-char
-  if (input.compare(pos, 2, ">=") == 0 || input.compare(pos, 2, "<=") == 0 ||
-      input.compare(pos, 2, "!=") == 0 || input.compare(pos, 2, "<>") == 0) {
-    pos += 2;
-    return input.substr(pos - 2, 2);
-  }
-
-  // Operadores de un solo caracter
-  if (strchr("=><,", input[pos])) {
-    return std::string(1, input[pos++]);
-  }
-
-  // Cadenas entre comillas
-  if (input[pos] == '\'') {
-    size_t end = input.find('\'', pos + 1);
-    std::string val = input.substr(pos, end - pos + 1);
-    pos = end + 1;
-    return val;
-  }
-
-  // Palabras o identificadores
+std::string Tokenizer::parseNumber() {
   size_t start = pos;
-  while (pos < input.length() &&
-         (std::isalnum(input[pos]) || input[pos] == '_')) {
+  while (pos < input.length() && std::isdigit(input[pos]))
+    ++pos;
+
+  if (pos < input.length() && input[pos] == '.') {
+    ++pos;
+    while (pos < input.length() && std::isdigit(input[pos]))
+      ++pos;
+  }
+
+  return input.substr(start, pos - start);
+}
+
+std::string Tokenizer::parseQuotedString() {
+  char quote = input[pos];
+  size_t start = pos;
+  ++pos;
+
+  while (pos < input.length() && input[pos] != quote) {
+    if (input[pos] == '\\' && pos + 1 < input.length()) // Handle escape
+      ++pos;
     ++pos;
   }
+
+  if (pos < input.length())
+    ++pos; // Skip closing quote
+
   return input.substr(start, pos - start);
+}
+
+std::string Tokenizer::parseIdentifier() {
+  size_t start = pos;
+  while (pos < input.length() &&
+         (std::isalnum(input[pos]) || input[pos] == '_'))
+    ++pos;
+  return input.substr(start, pos - start);
+}
+
+std::string Tokenizer::parseOperator() {
+  // Multi-character operators
+  if (pos + 1 < input.length()) {
+    std::string twoChar = input.substr(pos, 2);
+    if (twoChar == ">=" || twoChar == "<=" || twoChar == "!=" ||
+        twoChar == "<>") {
+      pos += 2;
+      return twoChar;
+    }
+  }
+
+  // Single-character operators
+  std::string op(1, input[pos++]);
+  return op;
+}
+
+std::string Tokenizer::nextToken() {
+  skipWhitespace();
+  if (pos >= input.length())
+    return "";
+
+  char c = input[pos];
+
+  if (std::isdigit(c))
+    return parseNumber();
+
+  if (c == '\'' || c == '"')
+    return parseQuotedString();
+
+  if (std::isalpha(c) || c == '_')
+    return parseIdentifier();
+
+  if (strchr("=><,()", c))
+    return parseOperator();
+
+  // Default case (shouldn't normally reach here)
+  return std::string(1, input[pos++]);
 }
 
 std::vector<std::string> Tokenizer::tokenize() {
   std::vector<std::string> tokens;
   std::string token;
+
   while (!(token = nextToken()).empty()) {
-    tokens.push_back(token);
+    // Convert SQL keywords to uppercase
+    std::string upperToken = token;
+    std::transform(upperToken.begin(), upperToken.end(), upperToken.begin(),
+                   ::toupper);
+
+    if (upperToken == "SELECT" || upperToken == "FROM" ||
+        upperToken == "WHERE" || upperToken == "AND" || upperToken == "OR") {
+      tokens.push_back(upperToken);
+    } else {
+      tokens.push_back(token);
+    }
   }
+
   return tokens;
 }

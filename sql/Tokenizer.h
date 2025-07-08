@@ -15,6 +15,10 @@ private:
 
   void skipWhitespace();
   std::string nextToken();
+  std::string parseNumber();
+  std::string parseQuotedString();
+  std::string parseIdentifier();
+  std::string parseOperator();
 };
 
 #endif

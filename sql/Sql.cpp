@@ -57,9 +57,9 @@ bool SQL::cumpleCondiciones(const std::vector<std::string> &registro) {
         int esp = std::stoi(esperado);
 
         if (operador == "=")
-          cumple = val == esp;
+          cumple = std::abs(val - esp) < 0.000001;
         else if (operador == "!=")
-          cumple = val != esp;
+          cumple = std::abs(val - esp) >= 0.000001;
         else if (operador == "<")
           cumple = val < esp;
         else if (operador == "<=")
@@ -69,23 +69,23 @@ bool SQL::cumpleCondiciones(const std::vector<std::string> &registro) {
         else if (operador == ">=")
           cumple = val >= esp;
 
-      } else if (tipo == "FLOAT") {
-        float val = std::stof(valor);
-        float esp = std::stof(esperado);
+      } else if (tipo == "FLOAT" || tipo == "DECIMAL") {
+        double val = std::stod(valor);
+        double esp = std::stod(cond.valor);
+        double epsilon = 0.000001;
 
-        if (operador == "=")
-          cumple = val == esp;
-        else if (operador == "!=")
-          cumple = val != esp;
-        else if (operador == "<")
+        if (cond.operador == "=")
+          cumple = std::abs(val - esp) < epsilon;
+        else if (cond.operador == "!=")
+          cumple = std::abs(val - esp) >= epsilon;
+        else if (cond.operador == "<")
           cumple = val < esp;
-        else if (operador == "<=")
+        else if (cond.operador == "<=")
           cumple = val <= esp;
-        else if (operador == ">")
+        else if (cond.operador == ">")
           cumple = val > esp;
-        else if (operador == ">=")
+        else if (cond.operador == ">=")
           cumple = val >= esp;
-
       } else { // VARCHAR
         if (operador == "=")
           cumple = valor == esperado;

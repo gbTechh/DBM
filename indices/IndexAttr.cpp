@@ -216,7 +216,7 @@ std::vector<unsigned int> IndexAttr::buscar(const std::string &campo,
   if (tipo == "int") {
     clave.tipo = TIPO_ENTERO;
     clave.valor = std::stoull(valor);
-  } else if (tipo == "float") {
+  } else if (tipo == "float" || tipo == "decimal" || tipo == "double") {
     clave.tipo = TIPO_FLOTANTE;
     clave.valor = stof(valor);
   } else {

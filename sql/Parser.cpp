@@ -1,6 +1,5 @@
 #include "Parser.h"
-#include <iostream>
-#include <stdexcept>
+#include <algorithm>
 
 Parser::Parser(const std::vector<std::string> &tokens)
     : tokens(tokens), pos(0) {}
@@ -24,27 +23,45 @@ void Parser::expect(const std::string &expected) {
 
 std::vector<std::string> Parser::parseCampos() {
   std::vector<std::string> campos;
+
   while (true) {
+    if (current().empty() || current() == "FROM")
+      break;
+
+    if (current() == ",") {
+      advance();
+      continue;
+    }
+
     campos.push_back(current());
     advance();
-    if (current() == ",") {
-      advance(); // Saltar coma
-    } else {
-      break;
-    }
   }
+
   return campos;
+}
+
+std::string Parser::parseValor() {
+  std::string val = current();
+
+  // Remove quotes from quoted strings
+  if ((val.front() == '\'' || val.front() == '"') &&
+      val.back() == val.front() && val.size() >= 2) {
+    return val.substr(1, val.size() - 2);
+  }
+
+  return val;
 }
 
 Condicion Parser::parseCondicion() {
   Condicion c;
+
   c.campo = current();
   advance();
 
   c.operador = current();
   advance();
 
-  c.valor = current();
+  c.valor = parseValor();
   advance();
 
   return c;
